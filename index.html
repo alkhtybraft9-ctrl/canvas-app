@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محرر الامتحانات الاحترافي - مؤسسة مرمرة التعليمية</title>
 
-    <!-- App Icons (Favicon & Home Screen) مدمجة لضمان ظهور اللوغو عند التثبيت -->
-    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzBkOTQ4OCIgcng9IjEwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjM1ZW0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzAwIiBmaWxsPSIjZmZmZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiPtmFPC90ZXh0Pjwvc3ZnPg==">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzBkOTQ4OCIgcng9IjEwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjM1ZW0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzAwIiBmaWxsPSIjZmZmZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiPtmFPC90ZXh0Pjwvc3ZnPg==">
-    <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzBkOTQ4OCIgcng9IjEwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjM1ZW0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzAwIiBmaWxsPSIjZmZmZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiPtmFPC90ZXh0Pjwvc3ZnPg==">
+    <!-- App Icons (Favicon & Home Screen) مرتبطة بملف اللوغو -->
+    <link rel="icon" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="shortcut icon" href="logo.png">
 
     <!-- PWA Web App Meta Tags -->
     <meta name="theme-color" content="#0f172a">
@@ -591,7 +591,7 @@
 
     </div>
 
-    <!-- Modals and Dialogs Sections as they were... -->
+    <!-- Modals and Dialogs Sections -->
     <div id="smart-review-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[70] flex items-center justify-center hidden p-2 sm:p-4 no-print overflow-y-auto">
         <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full h-[90vh] flex flex-col border border-slate-200 my-auto overflow-hidden">
             <div class="p-4 bg-navy-900 text-white flex items-center justify-between shrink-0">
@@ -722,8 +722,6 @@
         </div>
     </div>
 
-    <!-- Rest of the Modals: edit-modal, symbols-modal, equation-modal, shapes-modal, toast... -->
-    <!-- Due to length they are kept exactly the same -->
     <div id="edit-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print overflow-y-auto">
         <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-5 space-y-4 border border-slate-200 my-auto">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -1121,9 +1119,6 @@
 
     <script>
         (function setupPWAManifest() {
-            // حل ميزة (اللوغو عند التثبيت): استبدال الصورة بـ SVG Base64 لضمان التواجد الدائم بدون خوادم خارجية
-            const iconBase64 = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzBkOTQ4OCIgcng9IjEwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjM1ZW0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzAwIiBmaWxsPSIjZmZmZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiPtmFPC90ZXh0Pjwvc3ZnPg==";
-            
             const manifestObj = {
                 name: "محرر الامتحانات الاحترافي - مرمرة",
                 short_name: "محرر الامتحانات",
@@ -1133,13 +1128,11 @@
                 background_color: "#f1f5f9",
                 theme_color: "#0f172a",
                 icons: [
-                    { src: iconBase64, sizes: "192x192 512x512", type: "image/svg+xml", purpose: "any maskable" },
-                    { src: "logo.png", sizes: "192x192", type: "image/png" },
-                    { src: "logo.png", sizes: "512x512", type: "image/png" }
+                    { src: "logo.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+                    { src: "logo.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
                 ]
             };
             
-            // حل ميزة (زر التثبيت): استخدام Data URI بدلاً من Blob للتوافق التام مع متطلبات PWA في كروم الموبايل
             const stringManifest = JSON.stringify(manifestObj);
             const manifestURL = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(stringManifest);
             document.getElementById('manifest-placeholder').setAttribute('href', manifestURL);
@@ -1151,7 +1144,6 @@
                 const swCode = `
                     const CACHE_NAME = 'marmara-exam-v3';
                     self.addEventListener('install', (e) => {
-                        // إضافة الـ cache.addAll شرط أساسي لقبول تثبيت التطبيق PWA
                         e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
                         self.skipWaiting();
                     });

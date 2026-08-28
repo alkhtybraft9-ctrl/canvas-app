@@ -1,20 +1,23 @@
 {
-  "name": "محرر الامتحانات",
+  "name": "محرر الامتحانات الاحترافي - مرمرة",
   "short_name": "محرر الامتحانات",
-  "start_url": ".",
+  "description": "تطبيق تحرير الامتحانات والأدوات الرياضية والفيزيائية الاحترافي",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0f172a",
   "icons": [
     {
       "src": "logo.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

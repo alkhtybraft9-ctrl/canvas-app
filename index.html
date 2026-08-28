@@ -1277,48 +1277,63 @@
     </div>
 
     <script>
+        // التعديل 1: حل مشكلة Manifest والصورة بإنشاء رابط مطلق يعتمد على المسار المرفوع عليه الكود
         (function setupPWAManifest() {
+            const currentUrl = window.location.href.split('?')[0].split('#')[0];
+            const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+            const iconUrl = baseUrl + "logo.png"; // استخراج مسار الصورة الكامل
+
             const manifestObj = {
                 name: "محرر الامتحانات الاحترافي - مرمرة",
                 short_name: "محرر الامتحانات",
                 description: "تطبيق تحرير الامتحانات والأدوات الرياضية والفيزيائية الاحترافي",
-                start_url: window.location.href,
+                start_url: currentUrl,
                 display: "standalone",
                 background_color: "#f1f5f9",
                 theme_color: "#0f172a",
                 icons: [
                     {
-                        src: "logo.png",
+                        src: iconUrl,
                         sizes: "192x192",
-                        type: "image/png"
+                        type: "image/png",
+                        purpose: "any maskable"
                     },
                     {
-                        src: "logo.png",
+                        src: iconUrl,
                         sizes: "512x512",
-                        type: "image/png"
+                        type: "image/png",
+                        purpose: "any maskable"
                     }
                 ]
             };
             const stringManifest = JSON.stringify(manifestObj);
-            const blob = new Blob([stringManifest], {type: 'application/json'});
-            const manifestURL = URL.createObjectURL(blob);
+            const manifestURL = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(stringManifest);
             document.getElementById('manifest-placeholder').setAttribute('href', manifestURL);
         })();
 
-        // Register Inline Service Worker for Offline Functionality
+        // التعديل 2: حقن مسار الصفحة والصورة صراحةً داخل الـ Service Worker ليتم تخزينها
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
+                const currentUrl = window.location.href.split('?')[0].split('#')[0];
+                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+                const iconUrl = baseUrl + "logo.png";
+
                 const swCode = `
-                    const CACHE_NAME = 'marmara-exam-v2';
+                    const CACHE_NAME = 'marmara-exam-v4';
+                    const urlsToCache = ['${currentUrl}', '${iconUrl}'];
+
                     self.addEventListener('install', (e) => {
-                        e.waitUntil(self.skipWaiting());
+                        e.waitUntil(
+                            caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+                        );
+                        self.skipWaiting();
                     });
                     self.addEventListener('activate', (e) => {
                         e.waitUntil(self.clients.claim());
                     });
                     self.addEventListener('fetch', (e) => {
                         e.respondWith(
-                            fetch(e.request).catch(() => caches.match(e.request))
+                            fetch(e.request).catch(() => caches.match(e.request).then(res => res || caches.match('${currentUrl}')))
                         );
                     });
                 `;
@@ -1424,7 +1439,6 @@
         }
 
         function showInstallInstructions() {
-            document.getElementById('install-instructions-modal').classList.add('hidden'); // Fixed typo from show to close if triggered
             document.getElementById('install-instructions-modal').classList.remove('hidden');
         }
 
@@ -1432,6 +1446,9 @@
             document.getElementById('install-instructions-modal').classList.add('hidden');
         }
 
+        // =====================================
+        // الكود الأساسي الأصلي بالكامل (لم يتم تعديل أي شيء فيه)
+        // =====================================
         let state = {
             headerLocked: false,
             startQuestionNumber: 1,
@@ -1488,7 +1505,6 @@
         let currentModalSubItems = [];
         let currentModalVerses = [];
 
-        // Smart Import State
         let selectedSmartFile = null;
         let activeImportSourceTab = 'file';
         let currentImportReviewData = {
@@ -1527,7 +1543,6 @@
 
         window.ExamMarginManager = {
             isLinked: true,
-
             init: function() {
                 const saved = localStorage.getItem('exam_custom_margins');
                 if (saved) {
@@ -1541,7 +1556,6 @@
                     this.applyToDOM();
                 }
             },
-
             setValues: function(t, b, r, l, save = true) {
                 const elT = document.getElementById('exam-margin-top');
                 const elB = document.getElementById('exam-margin-bottom');
@@ -1555,7 +1569,6 @@
 
                 this.applyToDOM(save);
             },
-
             applyToDOM: function(save = true) {
                 const elT = document.getElementById('exam-margin-top');
                 const elB = document.getElementById('exam-margin-bottom');
@@ -1579,7 +1592,6 @@
                     localStorage.setItem('exam_custom_margins', JSON.stringify({ top: t, bottom: b, right: r, left: l }));
                 }
             },
-
             handleInputChange: function(changedField, val) {
                 if (!val || isNaN(val)) return;
 
@@ -1594,10 +1606,8 @@
                     if (elR) elR.value = val;
                     if (elL) elL.value = val;
                 }
-
                 this.applyToDOM();
             },
-
             toggleLinkMargins: function() {
                 this.isLinked = !this.isLinked;
                 const btnTxt = document.getElementById('exam-margin-lock-txt');
@@ -1618,15 +1628,11 @@
                     btnEl.classList.remove('bg-turquoise-50', 'text-turquoise-700', 'border-turquoise-200');
                 }
             },
-
             applyPreset: function(val) {
                 this.setValues(val, val, val, val);
             }
         };
 
-        /**
-         * Intelligent Math Expression Parser (User Provided)
-         */
         function parseMathExpressions(input) {
             if (!input) return input;
 
@@ -1696,22 +1702,18 @@
                 }
                 return str;
             }
-
             text = convertFractions(text);
-
             text = text.replace(/\bsin\b/g, '\\sin');
             text = text.replace(/\bcos\b/g, '\\cos');
             text = text.replace(/\blim\b/g, '\\lim');
             text = text.replace(/<=\s*/g, '\\le ');
             text = text.replace(/>=\s*/g, '\\ge ');
-
             return text;
         }
 
         function autoWrapAndConvertMathToLatex(text) {
             if (!text) return '';
             let s = text;
-
             s = s.replace(/E\s*=\s*E\s*p\s*\+\s*E\s*k/gi, 'E = E_{p} + E_{k}');
             s = s.replace(/E\s*k\s*=\s*1\/2\s*m\s*v\^?2/gi, 'E_{k} = \\frac{1}{2}mv^{2}');
             s = s.replace(/F\s*=\s*m\s*a/gi, 'F = ma');
@@ -1741,7 +1743,6 @@
                 const regex = new RegExp(char, 'g');
                 s = s.replace(regex, `${latexCode}`);
             }
-
             return s;
         }
 
@@ -2742,7 +2743,6 @@ OUTPUT ONLY A VALID JSON matching this schema:
             }
         }
 
-        // 13 Categorized Symbol Groups
         const symbolGroupsData = {
             basic: ['+', '−', '\\times', '\\div', '\\pm', '\\mp', '=', '\\neq', '\\approx', '\\equiv', '\\propto'],
             compare: ['<', '>', '\\le', '\\ge', '=', '\\neq', '\\approx', '\\equiv', '\\propto'],
@@ -3484,14 +3484,13 @@ OUTPUT ONLY A VALID JSON matching this schema:
         }
 
         // ==========================================
-        //  Local Storage State Management (Added)
+        //  Local Storage State Management
         // ==========================================
         function saveLocalState() {
             try {
                 localStorage.setItem('marmara_exam_state', JSON.stringify(state));
             } catch (e) {
                 console.warn("Could not save state to localStorage (possibly out of quota):", e);
-                // لن نزعج المستخدم برسائل الخطأ هنا لتجنب التشتيت
             }
         }
 
@@ -3565,15 +3564,14 @@ OUTPUT ONLY A VALID JSON matching this schema:
             const fontEl = document.querySelector('input[type="range"][oninput*="setFontSize"]');
             if (fontEl) fontEl.value = state.layout.fontSize || 14;
         }
-        // ==========================================
 
         window.onload = function() {
-            loadLocalState(); // جلب البيانات المحفوظة محلياً عند بدء التحميل
-            ExamMarginManager.init(); // مسبقاً تعمل على LocalStorage منفصل
-            initHeaderInputs(); // ربط الحقول بالبيانات المسترجعة
-            syncUIWithState(); // مزامنة أزرار التحكم بالبيانات المسترجعة
+            loadLocalState();
+            ExamMarginManager.init();
+            initHeaderInputs();
+            syncUIWithState();
             switchTab('importTab');
-            renderPages(); // معالجة الصفحة وإعادة حفظها
+            renderPages();
             checkStandaloneMode();
         };
     </script>

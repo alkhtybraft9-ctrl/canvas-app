@@ -9,13 +9,15 @@
     <link rel="icon" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="shortcut icon" href="logo.png">
-<link rel="manifest" href="manifest.json">
+
     <!-- PWA Web App Meta Tags -->
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="محرر الامتحانات">
 
+    <!-- Dynamic Web App Manifest Data URI -->
+    <link rel="manifest" id="manifest-placeholder">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1495,8 +1497,6 @@
             sourcePreviewDataUrl: '',
             questions: []
         };
-
-        // إزالة دوال الرندرة المزدوجة التي تسبب تداخل كود KaTeX وتدميره
         
         function toggleMainHeader() {
             const headers = document.querySelectorAll('header, .toolbar, .top-bar, .navbar, #header-controls, .header-container');
@@ -1712,10 +1712,6 @@
             if (!text) return '';
             let s = text;
 
-            // PRESERVATION & CLEANUP: Do not destroy explicit existing LaTeX blocks (e.g. $...$, $$...$$, or [math]...[/math])
-            // If the text contains already wrapped LaTeX using $...$ or [math]...[/math], we can extract or preserve them,
-            // but if the parser strips [math] tags, let's make sure we preserve raw LaTeX content as requested.
-            
             s = s.replace(/E\s*=\s*E\s*p\s*\+\s*E\s*k/gi, 'E = E_{p} + E_{k}');
             s = s.replace(/E\s*k\s*=\s*1\/2\s*m\s*v\^?2/gi, 'E_{k} = \\frac{1}{2}mv^{2}');
             s = s.replace(/F\s*=\s*m\s*a/gi, 'F = ma');
@@ -2281,6 +2277,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 }
             }
             showToast(state.headerLocked ? 'تم قفل الرأس' : 'تم فتح قفل الرأس');
+            saveLocalState();
         }
 
         function updateHeaderData() {
@@ -3313,6 +3310,9 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 pageEl.innerHTML = headerHtml + questionsHtml;
                 wrapper.appendChild(pageEl);
             });
+
+            // Auto-Save the state anytime the document is rendered
+            saveLocalState();
         }
 
         function exportToWord() {
@@ -3399,7 +3399,8 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     if (data.state) {
                         state = data.state;
                         initHeaderInputs();
-                        renderPages();
+                        syncUIWithState(); // Update UI layout switches
+                        renderPages(); // Triggers auto-save
                         showToast('✅ تم تحميل ملف الامتحان بنجاح!');
                     } else {
                         showToast('تنسيق الملف غير مدعوم.', 'warning');
@@ -3482,11 +3483,97 @@ OUTPUT ONLY A VALID JSON matching this schema:
             }
         }
 
+        // ==========================================
+        //  Local Storage State Management (Added)
+        // ==========================================
+        function saveLocalState() {
+            try {
+                localStorage.setItem('marmara_exam_state', JSON.stringify(state));
+            } catch (e) {
+                console.warn("Could not save state to localStorage (possibly out of quota):", e);
+                // لن نزعج المستخدم برسائل الخطأ هنا لتجنب التشتيت
+            }
+        }
+
+        function loadLocalState() {
+            const savedState = localStorage.getItem('marmara_exam_state');
+            if (savedState) {
+                try {
+                    const parsed = JSON.parse(savedState);
+                    if (parsed && parsed.header && parsed.pages) {
+                        state = parsed;
+                    }
+                } catch (e) {
+                    console.error("Error parsing saved state:", e);
+                }
+            }
+        }
+
+        function syncUIWithState() {
+            // تحديث رقم بداية الأسئلة
+            const startQNumEl = document.getElementById('input-start-qnum');
+            if (startQNumEl) startQNumEl.value = state.startQuestionNumber || 1;
+
+            // تحديث حالة إظهار الدرجات الشاملة
+            const globalMarksEl = document.getElementById('chk-global-show-marks');
+            if (globalMarksEl) globalMarksEl.checked = state.layout.showQuestionMarks !== false;
+
+            // تحديث حالة قفل الرأس
+            const lockBtn = document.getElementById('lockBtn');
+            if (state.headerLocked) {
+                const inputs = document.querySelectorAll('#tab-headerTab input');
+                inputs.forEach(inp => inp.disabled = true);
+                if (lockBtn) {
+                    lockBtn.innerHTML = '<i class="fa-solid fa-lock ml-1 text-rose-600"></i> الرأس مقفل';
+                    lockBtn.classList.add('bg-rose-50', 'text-rose-700', 'border-rose-200');
+                }
+            } else {
+                const inputs = document.querySelectorAll('#tab-headerTab input');
+                inputs.forEach(inp => inp.disabled = false);
+                if (lockBtn) {
+                    lockBtn.innerHTML = '<i class="fa-solid fa-lock-open ml-1"></i> قفل الرأس';
+                    lockBtn.classList.remove('bg-rose-50', 'text-rose-700', 'border-rose-200');
+                }
+            }
+
+            // تحديث أزرار اتجاه التخطيط
+            const btnRtl = document.getElementById('btn-dir-rtl');
+            const btnLtr = document.getElementById('btn-dir-ltr');
+            if (state.layout.direction === 'rtl') {
+                if (btnRtl) btnRtl.className = 'p-2 border rounded font-bold transition text-center bg-turquoise-50 border-turquoise-500 text-turquoise-800';
+                if (btnLtr) btnLtr.className = 'p-2 border rounded font-bold transition text-center bg-white border-slate-200 text-slate-600';
+            } else {
+                if (btnLtr) btnLtr.className = 'p-2 border rounded font-bold transition text-center bg-turquoise-50 border-turquoise-500 text-turquoise-800';
+                if (btnRtl) btnRtl.className = 'p-2 border rounded font-bold transition text-center bg-white border-slate-200 text-slate-600';
+            }
+
+            // تحديث أزرار الأعمدة
+            const btn1 = document.getElementById('btn-col-1');
+            const btn2 = document.getElementById('btn-col-2');
+            if (state.layout.columns === 1) {
+                if (btn1) btn1.className = 'p-2 border rounded font-bold transition text-center bg-turquoise-50 border-turquoise-500 text-turquoise-800';
+                if (btn2) btn2.className = 'p-2 border rounded font-bold transition text-center bg-white border-slate-200 text-slate-600';
+            } else {
+                if (btn2) btn2.className = 'p-2 border rounded font-bold transition text-center bg-turquoise-50 border-turquoise-500 text-turquoise-800';
+                if (btn1) btn1.className = 'p-2 border rounded font-bold transition text-center bg-white border-slate-200 text-slate-600';
+            }
+
+            // تحديث تباعد الأسئلة وحجم الخط
+            const spacingEl = document.getElementById('q-spacing-select');
+            if (spacingEl) spacingEl.value = state.layout.questionSpacing || 12;
+
+            const fontEl = document.querySelector('input[type="range"][oninput*="setFontSize"]');
+            if (fontEl) fontEl.value = state.layout.fontSize || 14;
+        }
+        // ==========================================
+
         window.onload = function() {
-            ExamMarginManager.init();
-            initHeaderInputs();
+            loadLocalState(); // جلب البيانات المحفوظة محلياً عند بدء التحميل
+            ExamMarginManager.init(); // مسبقاً تعمل على LocalStorage منفصل
+            initHeaderInputs(); // ربط الحقول بالبيانات المسترجعة
+            syncUIWithState(); // مزامنة أزرار التحكم بالبيانات المسترجعة
             switchTab('importTab');
-            renderPages();
+            renderPages(); // معالجة الصفحة وإعادة حفظها
             checkStandaloneMode();
         };
     </script>

@@ -275,7 +275,6 @@
                   <input type="file" id="importExamInput" accept=".json" style="display: none;" onchange="importExamProject(event)">
                 </div>
 
-                <!-- Mobile & Desktop App Install Button -->
                 <button id="pwa-install-btn" onclick="installPWA()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow border border-emerald-500">
                     <i class="fa-solid fa-download"></i>
                     <span id="pwa-btn-text">تثبيت التطبيق</span>
@@ -292,6 +291,13 @@
                     <i class="fa-solid fa-link"></i>
                     مشاركة مع الأستاذ
                 </button>
+
+                <!-- زر وضع الرسم الجديد -->
+                <button id="btn-drawing-mode" onclick="toggleDrawingMode()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-bold transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-pen"></i>
+                    <span id="drawing-mode-text">تفعيل الرسم</span>
+                </button>
+
                 <button onclick="exportToWord()" class="px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow">
                     <i class="fa-solid fa-file-word"></i>
                     تصدير Word
@@ -819,7 +825,7 @@
                             منسق أبيات القصيدة الشعرية (صدر وعجز)
                         </span>
                         <div class="flex items-center gap-2">
-                            <button type="button" onclick="underlineSelectedPoemWord()" class="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded font-bold text-[11px] transition" title="تسطير الكلمة المحددة">
+                            <button type="button" onmousedown="event.preventDefault();" onclick="underlineSelectedPoemWord()" class="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded font-bold text-[11px] transition" title="تسطير الكلمة المحددة">
                                 <i class="fa-solid fa-underline ml-1"></i> تسطير الكلمة
                             </button>
                             <button type="button" onclick="addVerseRow()" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded font-bold text-[11px] shadow transition">
@@ -861,6 +867,23 @@
 
                     <div id="modal-subitems-list" class="space-y-2 max-h-52 overflow-y-auto pr-1">
                         <!-- Dynamic Sub-Item Rows render here -->
+                    </div>
+                </div>
+
+                <!-- MCQ Options Section -->
+                <div id="modal-mcq-container" class="hidden border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-check text-turquoise-600"></i>
+                            خيارات الإجابة (A, B, C, D...)
+                        </span>
+                        <button type="button" onclick="addMcqOptionRow()" class="px-2.5 py-1 bg-turquoise-600 hover:bg-turquoise-700 text-white rounded font-bold text-[11px] shadow transition">
+                            <i class="fa-solid fa-plus ml-1"></i> إضافة خيار
+                        </button>
+                    </div>
+
+                    <div id="modal-mcq-list" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                        <!-- Dynamic MCQ Rows render here -->
                     </div>
                 </div>
 
@@ -1270,6 +1293,38 @@
         </div>
     </div>
 
+    <!-- Drawing Tools Toolbar -->
+    <div id="drawing-tools-panel" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 items-center gap-3 z-[60] transition-all duration-300 hidden no-print" dir="rtl">
+        <!-- Colors -->
+        <div class="flex items-center gap-2 border-l border-slate-200 pl-3">
+            <button type="button" onclick="setDrawColor('#0f172a', 'color-btn-1')" id="color-btn-1" class="color-btn w-6 h-6 rounded-full bg-slate-900 border border-slate-200 ring-2 ring-slate-400 ring-offset-1 transition-all" title="أسود"></button>
+            <button type="button" onclick="setDrawColor('#dc2626', 'color-btn-2')" id="color-btn-2" class="color-btn w-6 h-6 rounded-full bg-red-600 border border-slate-200 ring-2 ring-transparent ring-offset-1 transition-all" title="أحمر"></button>
+            <button type="button" onclick="setDrawColor('#2563eb', 'color-btn-3')" id="color-btn-3" class="color-btn w-6 h-6 rounded-full bg-blue-600 border border-slate-200 ring-2 ring-transparent ring-offset-1 transition-all" title="أزرق"></button>
+            <button type="button" onclick="setDrawColor('#16a34a', 'color-btn-4')" id="color-btn-4" class="color-btn w-6 h-6 rounded-full bg-green-600 border border-slate-200 ring-2 ring-transparent ring-offset-1 transition-all" title="أخضر"></button>
+        </div>
+        <!-- Thickness -->
+        <div class="flex items-center gap-1 border-l border-slate-200 pl-3">
+            <button type="button" onclick="setDrawWidth(1.5, 'width-btn-1')" id="width-btn-1" class="width-btn w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors" title="رفيع">
+                <div class="w-full mx-1 h-0.5 bg-slate-700 rounded-full"></div>
+            </button>
+            <button type="button" onclick="setDrawWidth(2.5, 'width-btn-2')" id="width-btn-2" class="width-btn w-8 h-8 flex items-center justify-center rounded-lg bg-slate-200 hover:bg-slate-100 transition-colors" title="متوسط">
+                <div class="w-full mx-1 h-1 bg-slate-700 rounded-full"></div>
+            </button>
+            <button type="button" onclick="setDrawWidth(4.5, 'width-btn-3')" id="width-btn-3" class="width-btn w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors" title="سميك">
+                <div class="w-full mx-1 h-1.5 bg-slate-700 rounded-full"></div>
+            </button>
+        </div>
+        <!-- Tools -->
+        <div class="flex items-center gap-2">
+            <button type="button" onclick="setDrawTool('pen')" id="draw-tool-pen" class="px-3 py-1.5 bg-turquoise-600 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-pen"></i> قلم
+            </button>
+            <button type="button" onclick="setDrawTool('eraser')" id="draw-tool-eraser" class="px-3 py-1.5 bg-white text-slate-700 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-eraser"></i> ممحاة
+            </button>
+        </div>
+    </div>
+
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-5 right-5 bg-navy-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-bold z-50 transform translate-y-20 opacity-0 flex items-center gap-2 pointer-events-none no-print">
         <i id="toast-icon" class="fa-solid fa-circle-check text-turquoise-400"></i>
@@ -1277,63 +1332,63 @@
     </div>
 
     <script>
-        // التعديل 1: حل مشكلة Manifest والصورة بإنشاء رابط مطلق يعتمد على المسار المرفوع عليه الكود
+        let lastPoemSelection = { el: null, start: 0, end: 0 };
+
+        function savePoemSelection(el) {
+            if (el && el.tagName === 'INPUT') {
+                lastPoemSelection = {
+                    el: el,
+                    start: el.selectionStart,
+                    end: el.selectionEnd
+                };
+            }
+        }
+
         (function setupPWAManifest() {
             const currentUrl = window.location.href.split('?')[0].split('#')[0];
             const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-            const iconUrl = baseUrl + "logo.png"; // استخراج مسار الصورة الكامل
+            const iconUrl = baseUrl + "logo.png";
 
             const manifestObj = {
                 name: "محرر الامتحانات الاحترافي - مرمرة",
                 short_name: "محرر الامتحانات",
                 description: "تطبيق تحرير الامتحانات والأدوات الرياضية والفيزيائية الاحترافي",
-                start_url: currentUrl,
+                start_url: window.location.href,
                 display: "standalone",
                 background_color: "#f1f5f9",
                 theme_color: "#0f172a",
                 icons: [
                     {
-                        src: iconUrl,
+                        src: "logo.png",
                         sizes: "192x192",
-                        type: "image/png",
-                        purpose: "any maskable"
+                        type: "image/png"
                     },
                     {
-                        src: iconUrl,
+                        src: "logo.png",
                         sizes: "512x512",
-                        type: "image/png",
-                        purpose: "any maskable"
+                        type: "image/png"
                     }
                 ]
             };
             const stringManifest = JSON.stringify(manifestObj);
-            const manifestURL = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(stringManifest);
+            const blob = new Blob([stringManifest], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(blob);
             document.getElementById('manifest-placeholder').setAttribute('href', manifestURL);
         })();
 
-        // التعديل 2: حقن مسار الصفحة والصورة صراحةً داخل الـ Service Worker ليتم تخزينها
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                const currentUrl = window.location.href.split('?')[0].split('#')[0];
-                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-                const iconUrl = baseUrl + "logo.png";
-
                 const swCode = `
-                    const CACHE_NAME = 'marmara-exam-v4';
-                    const urlsToCache = ['${currentUrl}', '${iconUrl}'];
-
+                    const CACHE_NAME = 'marmara-exam-v2';
                     self.addEventListener('install', (e) => {
-                        e.waitUntil(
-                            caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-                        );
-                        self.skipWaiting();
+                        e.waitUntil(self.skipWaiting());
                     });
                     self.addEventListener('activate', (e) => {
                         e.waitUntil(self.clients.claim());
                     });
                     self.addEventListener('fetch', (e) => {
                         e.respondWith(
-                            fetch(e.request).catch(() => caches.match(e.request).then(res => res || caches.match('${currentUrl}')))
+                            fetch(e.request).catch(() => caches.match(e.request))
                         );
                     });
                 `;
@@ -1343,7 +1398,6 @@
             });
         }
 
-        // Handle App Installation Prompt
         let deferredPrompt = null;
 
         function checkStandaloneMode() {
@@ -1375,11 +1429,7 @@
         });
 
         function isInIframe() {
-            try {
-                return window.self !== window.top;
-            } catch (e) {
-                return true;
-            }
+            try { return window.self !== window.top; } catch (e) { return true; }
         }
 
         function openInNewTab() {
@@ -1388,12 +1438,8 @@
                 const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
                 const blobUrl = URL.createObjectURL(blob);
                 const newWin = window.open(blobUrl, '_blank');
-                if (!newWin) {
-                    downloadAppHtml();
-                }
-            } catch (e) {
-                downloadAppHtml();
-            }
+                if (!newWin) { downloadAppHtml(); }
+            } catch (e) { downloadAppHtml(); }
         }
 
         function downloadAppHtml() {
@@ -1409,18 +1455,14 @@
                 document.body.removeChild(a);
                 setTimeout(() => URL.revokeObjectURL(url), 1000);
                 showToast('تم تنزيل ملف التطبيق بنجاح!');
-            } catch (err) {
-                showToast('تعذر التنزيل التلقائي', 'warning');
-            }
+            } catch (err) { showToast('تعذر التنزيل التلقائي', 'warning'); }
         }
 
         function installPWA() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        showToast('جاري تثبيت التطبيق على جهازك...');
-                    }
+                    if (choiceResult.outcome === 'accepted') { showToast('جاري تثبيت التطبيق على جهازك...'); }
                     deferredPrompt = null;
                 });
             } else {
@@ -1438,17 +1480,9 @@
             }
         }
 
-        function showInstallInstructions() {
-            document.getElementById('install-instructions-modal').classList.remove('hidden');
-        }
+        function showInstallInstructions() { document.getElementById('install-instructions-modal').classList.remove('hidden'); }
+        function closeInstallInstructions() { document.getElementById('install-instructions-modal').classList.add('hidden'); }
 
-        function closeInstallInstructions() {
-            document.getElementById('install-instructions-modal').classList.add('hidden');
-        }
-
-        // =====================================
-        // الكود الأساسي الأصلي بالكامل (لم يتم تعديل أي شيء فيه)
-        // =====================================
         let state = {
             headerLocked: false,
             startQuestionNumber: 1,
@@ -1480,6 +1514,7 @@
             pages: [
                 {
                     id: 1,
+                    drawings: [], // الحاوية المستقلة لمسارات الرسم
                     questions: [
                         { id: 101, type: 'instruction', text: 'أجب عن جميع الأسئلة التالية موضحًا خطوات الحل والتطبيق العلمي:', marks: 0, answerLines: 0 },
                         { 
@@ -1504,16 +1539,186 @@
         let editingTarget = null;
         let currentModalSubItems = [];
         let currentModalVerses = [];
+        let currentModalOptions = [];
 
+        // Smart Import State
         let selectedSmartFile = null;
         let activeImportSourceTab = 'file';
-        let currentImportReviewData = {
-            sourceType: '',
-            sourceName: '',
-            sourcePreviewDataUrl: '',
-            questions: []
-        };
+        let currentImportReviewData = { sourceType: '', sourceName: '', sourcePreviewDataUrl: '', questions: [] };
         
+        // =====================================
+        // أدوات الرسم الحر المستقلة (الميزة 5)
+        // =====================================
+        let isDrawingMode = false;
+        let isDrawing = false;
+        let currentDrawPath = null;
+        let currentDrawData = [];
+        let drawPageIdx = null;
+
+        let currentDrawColor = '#0f172a';
+        let currentDrawWidth = 2.5;
+        let currentDrawTool = 'pen';
+
+        function setDrawColor(c, elId) {
+            currentDrawColor = c;
+            if(currentDrawTool === 'eraser') setDrawTool('pen');
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('ring-slate-400', 'ring-offset-1'));
+            document.getElementById(elId).classList.add('ring-slate-400', 'ring-offset-1');
+        }
+
+        function setDrawWidth(w, elId) {
+            currentDrawWidth = w;
+            if(currentDrawTool === 'eraser') setDrawTool('pen');
+            document.querySelectorAll('.width-btn').forEach(btn => btn.classList.remove('bg-slate-200'));
+            document.getElementById(elId).classList.add('bg-slate-200');
+        }
+
+        function setDrawTool(t) {
+            currentDrawTool = t;
+            const penBtn = document.getElementById('draw-tool-pen');
+            const eraseBtn = document.getElementById('draw-tool-eraser');
+
+            if (t === 'pen') {
+                penBtn.className = 'px-3 py-1.5 bg-turquoise-600 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm';
+                eraseBtn.className = 'px-3 py-1.5 bg-white text-slate-700 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 rounded-lg text-xs font-bold transition flex items-center gap-1.5';
+            } else {
+                eraseBtn.className = 'px-3 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm';
+                penBtn.className = 'px-3 py-1.5 bg-white text-slate-700 hover:bg-turquoise-50 hover:text-turquoise-600 border border-slate-200 rounded-lg text-xs font-bold transition flex items-center gap-1.5';
+            }
+        }
+
+        function erasePathAt(clientX, clientY) {
+            const el = document.elementFromPoint(clientX, clientY);
+            if (el && el.tagName.toLowerCase() === 'path') {
+                const svg = el.closest('svg');
+                if (svg && svg.parentNode.classList.contains('a4-page')) {
+                    const pagesWrapper = document.getElementById('pages-wrapper');
+                    const pages = Array.from(pagesWrapper.children);
+                    const pIdx = pages.indexOf(svg.parentNode);
+                    
+                    if (pIdx !== -1) {
+                        const pathStr = el.getAttribute('d');
+                        let index = state.pages[pIdx].drawings.findIndex(item => {
+                            let d = typeof item === 'string' ? item : item.d;
+                            return d === pathStr;
+                        });
+                        if (index !== -1) {
+                            state.pages[pIdx].drawings.splice(index, 1);
+                            el.remove();
+                            saveLocalState();
+                        }
+                    }
+                }
+            }
+        }
+
+        function toggleDrawingMode() {
+            isDrawingMode = !isDrawingMode;
+            const btn = document.getElementById('btn-drawing-mode');
+            const text = document.getElementById('drawing-mode-text');
+            const toolbar = document.getElementById('drawing-tools-panel');
+
+            if (isDrawingMode) {
+                btn.classList.remove('bg-slate-800', 'hover:bg-slate-700', 'text-amber-300');
+                btn.classList.add('bg-amber-600', 'hover:bg-amber-700', 'text-white');
+                text.textContent = 'إيقاف الرسم';
+                toolbar.classList.remove('hidden');
+                toolbar.classList.add('flex');
+                showToast('تم تفعيل وضع الرسم الحر (القلم/اللمس)');
+            } else {
+                btn.classList.remove('bg-amber-600', 'hover:bg-amber-700', 'text-white');
+                btn.classList.add('bg-slate-800', 'hover:bg-slate-700', 'text-amber-300');
+                text.textContent = 'تفعيل الرسم';
+                toolbar.classList.add('hidden');
+                toolbar.classList.remove('flex');
+                showToast('تم إيقاف وضع الرسم');
+            }
+            renderPages(); 
+        }
+
+        function startDrawing(e, pIdx) {
+            if (!isDrawingMode) return;
+
+            if (currentDrawTool === 'eraser') {
+                isDrawing = true;
+                erasePathAt(e.clientX, e.clientY);
+                e.currentTarget.setPointerCapture(e.pointerId);
+                return;
+            }
+
+            isDrawing = true;
+            drawPageIdx = pIdx;
+            currentDrawData = [];
+            
+            const svg = e.currentTarget;
+            const rect = svg.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            currentDrawData.push(`${x},${y}`);
+            
+            currentDrawPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            currentDrawPath.setAttribute('stroke', currentDrawColor);
+            currentDrawPath.setAttribute('stroke-width', currentDrawWidth);
+            currentDrawPath.setAttribute('fill', 'none');
+            currentDrawPath.setAttribute('stroke-linecap', 'round');
+            currentDrawPath.setAttribute('stroke-linejoin', 'round');
+            currentDrawPath.setAttribute('d', `M ${x} ${y}`);
+            
+            svg.appendChild(currentDrawPath);
+            e.currentTarget.setPointerCapture(e.pointerId);
+        }
+
+        function continueDrawing(e) {
+            if (!isDrawingMode || !isDrawing) return;
+
+            if (currentDrawTool === 'eraser') {
+                erasePathAt(e.clientX, e.clientY);
+                return;
+            }
+
+            if (!currentDrawPath) return;
+
+            const svg = e.currentTarget;
+            const rect = svg.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            currentDrawData.push(`${x},${y}`);
+            
+            const d = `M ${currentDrawData[0]} ` + currentDrawData.slice(1).map(pt => `L ${pt}`).join(' ');
+            currentDrawPath.setAttribute('d', d);
+        }
+
+        function stopDrawing(e) {
+            if (!isDrawingMode || !isDrawing) return;
+            isDrawing = false;
+            e.currentTarget.releasePointerCapture(e.pointerId);
+            
+            if (currentDrawTool === 'eraser') {
+                return;
+            }
+
+            if (currentDrawData.length > 1 && drawPageIdx !== null) {
+                const finalD = `M ${currentDrawData[0]} ` + currentDrawData.slice(1).map(pt => `L ${pt}`).join(' ');
+                if (!state.pages[drawPageIdx].drawings) state.pages[drawPageIdx].drawings = [];
+                state.pages[drawPageIdx].drawings.push({ d: finalD, color: currentDrawColor, width: currentDrawWidth });
+                saveLocalState();
+            } else if (currentDrawPath) {
+                if (currentDrawData.length === 1 && drawPageIdx !== null) {
+                    const finalD = `M ${currentDrawData[0]} L ${currentDrawData[0]}`;
+                    if (!state.pages[drawPageIdx].drawings) state.pages[drawPageIdx].drawings = [];
+                    state.pages[drawPageIdx].drawings.push({ d: finalD, color: currentDrawColor, width: currentDrawWidth });
+                    saveLocalState();
+                }
+            }
+            currentDrawPath = null;
+            currentDrawData = [];
+            drawPageIdx = null;
+        }
+
+        // =====================================
+
         function toggleMainHeader() {
             const headers = document.querySelectorAll('header, .toolbar, .top-bar, .navbar, #header-controls, .header-container');
             const btnText = document.getElementById('toggleText');
@@ -1543,19 +1748,17 @@
 
         window.ExamMarginManager = {
             isLinked: true,
+
             init: function() {
                 const saved = localStorage.getItem('exam_custom_margins');
                 if (saved) {
                     try {
                         const parsed = JSON.parse(saved);
                         this.setValues(parsed.top, parsed.bottom, parsed.right, parsed.left, false);
-                    } catch (e) {
-                        console.error("Error loading margins", e);
-                    }
-                } else {
-                    this.applyToDOM();
-                }
+                    } catch (e) { console.error("Error loading margins", e); }
+                } else { this.applyToDOM(); }
             },
+
             setValues: function(t, b, r, l, save = true) {
                 const elT = document.getElementById('exam-margin-top');
                 const elB = document.getElementById('exam-margin-bottom');
@@ -1566,9 +1769,9 @@
                 if (elB) elB.value = b;
                 if (elR) elR.value = r;
                 if (elL) elL.value = l;
-
                 this.applyToDOM(save);
             },
+
             applyToDOM: function(save = true) {
                 const elT = document.getElementById('exam-margin-top');
                 const elB = document.getElementById('exam-margin-bottom');
@@ -1588,10 +1791,9 @@
                 root.style.setProperty('--exam-margin-right', r + 'mm');
                 root.style.setProperty('--exam-margin-left', l + 'mm');
 
-                if (save) {
-                    localStorage.setItem('exam_custom_margins', JSON.stringify({ top: t, bottom: b, right: r, left: l }));
-                }
+                if (save) localStorage.setItem('exam_custom_margins', JSON.stringify({ top: t, bottom: b, right: r, left: l }));
             },
+
             handleInputChange: function(changedField, val) {
                 if (!val || isNaN(val)) return;
 
@@ -1606,8 +1808,10 @@
                     if (elR) elR.value = val;
                     if (elL) elL.value = val;
                 }
+
                 this.applyToDOM();
             },
+
             toggleLinkMargins: function() {
                 this.isLinked = !this.isLinked;
                 const btnTxt = document.getElementById('exam-margin-lock-txt');
@@ -1628,14 +1832,14 @@
                     btnEl.classList.remove('bg-turquoise-50', 'text-turquoise-700', 'border-turquoise-200');
                 }
             },
-            applyPreset: function(val) {
-                this.setValues(val, val, val, val);
-            }
+            applyPreset: function(val) { this.setValues(val, val, val, val); }
         };
 
+        /**
+         * Intelligent Math Expression Parser (User Provided)
+         */
         function parseMathExpressions(input) {
             if (!input) return input;
-
             let text = input.replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
             text = text.replace(/√\(([^()]+)\)/g, '\\sqrt{$1}');
             text = text.replace(/√([a-zA-Z0-9]+)/g, '\\sqrt{$1}');
@@ -1654,10 +1858,7 @@
                             if (leftStr[i] === ')') depth++;
                             else if (leftStr[i] === '(') {
                                 depth--;
-                                if (depth === 0) {
-                                    numStart = i;
-                                    break;
-                                }
+                                if (depth === 0) { numStart = i; break; }
                             }
                         }
                     } else {
@@ -1677,10 +1878,7 @@
                             if (rightStr[i] === '(') depth++;
                             else if (rightStr[i] === ')') {
                                 depth--;
-                                if (depth === 0) {
-                                    denEnd = actualDenStart + i + 1;
-                                    break;
-                                }
+                                if (depth === 0) { denEnd = actualDenStart + i + 1; break; }
                             }
                         }
                     } else {
@@ -1702,18 +1900,22 @@
                 }
                 return str;
             }
+
             text = convertFractions(text);
+
             text = text.replace(/\bsin\b/g, '\\sin');
             text = text.replace(/\bcos\b/g, '\\cos');
             text = text.replace(/\blim\b/g, '\\lim');
             text = text.replace(/<=\s*/g, '\\le ');
             text = text.replace(/>=\s*/g, '\\ge ');
+
             return text;
         }
 
         function autoWrapAndConvertMathToLatex(text) {
             if (!text) return '';
             let s = text;
+
             s = s.replace(/E\s*=\s*E\s*p\s*\+\s*E\s*k/gi, 'E = E_{p} + E_{k}');
             s = s.replace(/E\s*k\s*=\s*1\/2\s*m\s*v\^?2/gi, 'E_{k} = \\frac{1}{2}mv^{2}');
             s = s.replace(/F\s*=\s*m\s*a/gi, 'F = ma');
@@ -1731,18 +1933,16 @@
             s = parseMathExpressions(s);
 
             const greekMap = {
-                'α': '\\alpha', 'β': '\\beta', 'γ': '\\gamma', 'δ': '\\delta',
-                'ε': '\\epsilon', 'ζ': '\\zeta', 'η': '\\eta', 'θ': '\\theta',
-                'ι': '\\iota', 'κ': '\\kappa', 'λ': '\\lambda', 'μ': '\\mu',
-                'ν': '\\nu', 'ξ': '\\xi', 'π': '\\pi', 'ρ': '\\rho',
-                'σ': '\\sigma', 'τ': '\\tau', 'υ': '\\upsilon', 'φ': '\\phi',
-                'χ': '\\chi', 'ψ': '\\psi', 'ω': '\\omega',
+                'α': '\\alpha', 'β': '\\beta', 'γ': '\\gamma', 'δ': '\\delta', 'ε': '\\epsilon', 'ζ': '\\zeta', 'η': '\\eta', 'θ': '\\theta',
+                'ι': '\\iota', 'κ': '\\kappa', 'λ': '\\lambda', 'μ': '\\mu', 'ν': '\\nu', 'ξ': '\\xi', 'π': '\\pi', 'ρ': '\\rho',
+                'σ': '\\sigma', 'τ': '\\tau', 'υ': '\\upsilon', 'φ': '\\phi', 'χ': '\\chi', 'ψ': '\\psi', 'ω': '\\omega',
                 'Δ': '\\Delta', 'Ω': '\\Omega', 'Σ': '\\Sigma', 'Γ': '\\Gamma', 'Θ': '\\Theta'
             };
             for (const [char, latexCode] of Object.entries(greekMap)) {
                 const regex = new RegExp(char, 'g');
                 s = s.replace(regex, `${latexCode}`);
             }
+
             return s;
         }
 
@@ -1752,11 +1952,7 @@
                 const contentEl = document.getElementById(`tab-${t}`);
                 const btnEl = document.getElementById(`btn-${t}`);
                 if (contentEl) {
-                    if (t === tabId) {
-                        contentEl.classList.remove('hidden');
-                    } else {
-                        contentEl.classList.add('hidden');
-                    }
+                    if (t === tabId) { contentEl.classList.remove('hidden'); } else { contentEl.classList.add('hidden'); }
                 }
                 if (btnEl) {
                     if (t === tabId) {
@@ -1800,15 +1996,10 @@
             document.getElementById('file-size-txt').textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
 
             const iconEl = document.getElementById('file-icon-type');
-            if (file.name.endsWith('.pdf')) {
-                iconEl.className = 'fa-solid fa-file-pdf text-rose-600 text-lg';
-            } else if (file.name.endsWith('.docx')) {
-                iconEl.className = 'fa-solid fa-file-word text-blue-600 text-lg';
-            } else if (file.type.startsWith('image/')) {
-                iconEl.className = 'fa-solid fa-file-image text-emerald-600 text-lg';
-            } else {
-                iconEl.className = 'fa-solid fa-file text-slate-600 text-lg';
-            }
+            if (file.name.endsWith('.pdf')) { iconEl.className = 'fa-solid fa-file-pdf text-rose-600 text-lg'; }
+            else if (file.name.endsWith('.docx')) { iconEl.className = 'fa-solid fa-file-word text-blue-600 text-lg'; }
+            else if (file.type.startsWith('image/')) { iconEl.className = 'fa-solid fa-file-image text-emerald-600 text-lg'; }
+            else { iconEl.className = 'fa-solid fa-file text-slate-600 text-lg'; }
         }
 
         function clearSelectedSmartFile() {
@@ -1825,12 +2016,8 @@
                         document.getElementById('bulkText').value = text;
                         showToast('تم اللصق من الحافظة بنجاح');
                     }
-                } else {
-                    showToast('يرجى استخدام اختصار Ctrl+V للصق المباشر', 'info');
-                }
-            } catch (err) {
-                showToast('يرجى استخدام اختصار Ctrl+V للصق المباشر', 'info');
-            }
+                } else { showToast('يرجى استخدام اختصار Ctrl+V للصق المباشر', 'info'); }
+            } catch (err) { showToast('يرجى استخدام اختصار Ctrl+V للصق المباشر', 'info'); }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1968,9 +2155,9 @@ Analyze the input exam (Arabic text + Math/Physics formulas, subscripts like Ep,
 
 CRITICAL MATH & PHYSICS RULES:
 1. SEPARATE Arabic/English text from Math/Physics Expressions.
-2. PRESERVE AND KEEP ALL LaTeX formulas intact using $...$ or $$...$$ delimiters (e.g., $f(x) = \\sqrt{x-1} - \\sqrt{x}$, $\\lim_{x \\to +\\infty}$, $\\frac{x^3 - 3x - 5}{(x+1)^2}$, $\\cos^2\\left(\\pi \\cdot \\sqrt{\\frac{x-1}{x+1}}\\right)$, $|f(x)-4| \\le \\frac{3}{x^2-5}$).
-3. NEVER convert LaTeX equations into MathML, HTML, or plain text strings. Keep the exact $...$ or $$...$$ LaTeX syntax so the native viewer can render them.
-4. Maintain Arabic text fidelity (RTL, Tashkeel, Hamzas, original order).
+2. PRESERVE AND KEEP ALL LaTeX formulas intact using $...$ or $$...$$ delimiters.
+3. NEVER convert LaTeX equations into MathML, HTML, or plain text strings.
+4. Maintain Arabic text fidelity.
 5. Identify question type: 'written', 'mcq', 'sub_questions', 'tf', 'poem', 'instruction'.
 
 OUTPUT ONLY A VALID JSON matching this schema:
@@ -2018,9 +2205,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
             const payload = {
                 contents: [{ role: "user", parts: parts }],
                 systemInstruction: { parts: [{ text: systemPrompt }] },
-                generationConfig: {
-                    responseMimeType: "application/json"
-                }
+                generationConfig: { responseMimeType: "application/json" }
             };
 
             const apiKey = "";
@@ -2039,9 +2224,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                         response = await res.json();
                         break;
                     }
-                } catch (e) {
-                    console.debug(`Retry attempt ${attempt + 1}`);
-                }
+                } catch (e) { console.debug(`Retry attempt ${attempt + 1}`); }
                 await new Promise(r => setTimeout(r, delay));
                 delay *= 2;
             }
@@ -2066,9 +2249,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                         }));
                         return;
                     }
-                } catch (jsonErr) {
-                    console.error("JSON parse error:", jsonErr);
-                }
+                } catch (jsonErr) { console.error("JSON parse error:", jsonErr); }
             }
 
             fallbackLocalQuestionParser(textContent || document.getElementById('bulkText').value);
@@ -2086,7 +2267,22 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     revReason = 'يحتوي على رموز إغريقية/فيزيائية - يرجى المراجعة';
                 }
 
-                if (/^(\d+|[أ-ي])[\-\.\:]/.test(line) || /^س\d+/.test(line)) {
+                const isOptionLine = /^([A-D]|[أ-د]|[a-d])\s*[\)\.\-]/i.test(line);
+
+                if (isOptionLine && extracted.length > 0) {
+                    let lastQ = extracted[extracted.length - 1];
+                    lastQ.type = 'mcq';
+                    lastQ.answerLines = 0;
+                    if (!lastQ.options) lastQ.options = [];
+                    
+                    const inlineOptionsRegex = /([A-D]|[أ-د]|[a-d])\s*[\)\.\-]\s*(.*?)(?=(?:[A-D]|[أ-د]|[a-d])\s*[\)\.\-]|$)/gi;
+                    let matches;
+                    while ((matches = inlineOptionsRegex.exec(line)) !== null) {
+                        if (matches[2].trim()) {
+                            lastQ.options.push(matches[2].trim());
+                        }
+                    }
+                } else if (/^(\d+|[أ-ي])[\-\.\:]/.test(line) || /^س\d+/.test(line)) {
                     const cleanText = line.replace(/^(\d+|[أ-ي])[\-\.\:]\s*/, '').replace(/^س\d+[\-\.\:]\s*/, '');
                     extracted.push({
                         id: Date.now() + i + Math.random(),
@@ -2096,7 +2292,8 @@ OUTPUT ONLY A VALID JSON matching this schema:
                         answerLines: 1,
                         needsReview: needsRev,
                         reviewReason: revReason,
-                        selectedForImport: true
+                        selectedForImport: true,
+                        options: []
                     });
                 } else {
                     if (extracted.length === 0) {
@@ -2107,10 +2304,29 @@ OUTPUT ONLY A VALID JSON matching this schema:
                             marks: 0,
                             answerLines: 0,
                             needsReview: false,
-                            selectedForImport: true
+                            selectedForImport: true,
+                            options: []
                         });
                     } else {
-                        extracted[extracted.length - 1].text += ' ' + line;
+                        if (extracted.length === 0) {
+                            extracted.push({
+                                id: Date.now() + i + Math.random(),
+                                type: 'instruction',
+                                text: line,
+                                marks: 0,
+                                answerLines: 0,
+                                needsReview: false,
+                                selectedForImport: true,
+                                options: []
+                            });
+                        } else {
+                            let lastQ = extracted[extracted.length - 1];
+                            if (lastQ.type === 'mcq' && lastQ.options && lastQ.options.length > 0) {
+                                lastQ.options[lastQ.options.length - 1] += ' ' + line;
+                            } else {
+                                lastQ.text += '\n' + line;
+                            }
+                        }
                     }
                 }
             });
@@ -2120,7 +2336,6 @@ OUTPUT ONLY A VALID JSON matching this schema:
 
         function openSmartReviewModal() {
             const modal = document.getElementById('smart-review-modal');
-            const summaryBadge = document.getElementById('review-summary-badge');
             const fileNameBadge = document.getElementById('source-filename-badge');
             const sourceContainer = document.getElementById('source-preview-container');
 
@@ -2331,9 +2546,11 @@ OUTPUT ONLY A VALID JSON matching this schema:
 
             currentModalSubItems = q.subItems ? JSON.parse(JSON.stringify(q.subItems)) : [];
             currentModalVerses = q.verses ? JSON.parse(JSON.stringify(q.verses)) : [];
+            currentModalOptions = q.options ? JSON.parse(JSON.stringify(q.options)) : [];
 
             renderSubItemsModalUI();
             renderPoemModalUI();
+            renderMcqModalUI();
             toggleModalSectionVisibility(q.type || 'written');
 
             document.getElementById('edit-modal').classList.remove('hidden');
@@ -2351,6 +2568,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
         function toggleModalSectionVisibility(type) {
             const subitemsContainer = document.getElementById('modal-subitems-container');
             const poemContainer = document.getElementById('modal-poem-container');
+            const mcqContainer = document.getElementById('modal-mcq-container');
 
             if (subitemsContainer) {
                 if (type === 'sub_questions') subitemsContainer.classList.remove('hidden');
@@ -2361,6 +2579,11 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 if (type === 'poem') poemContainer.classList.remove('hidden');
                 else poemContainer.classList.add('hidden');
             }
+
+            if (mcqContainer) {
+                if (type === 'mcq') mcqContainer.classList.remove('hidden');
+                else mcqContainer.classList.add('hidden');
+            }
         }
 
         function closeModal() {
@@ -2368,6 +2591,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
             editingTarget = null;
             currentModalSubItems = [];
             currentModalVerses = [];
+            currentModalOptions = [];
         }
 
         function renderPoemModalUI() {
@@ -2382,9 +2606,9 @@ OUTPUT ONLY A VALID JSON matching this schema:
             container.innerHTML = currentModalVerses.map((v, idx) => `
                 <div class="flex items-center gap-1.5 bg-white p-2 border border-amber-200 rounded shadow-sm">
                     <span class="font-extrabold text-amber-800 text-[11px] w-5 text-center">${idx + 1}</span>
-                    <input type="text" value="${v.sadr || ''}" placeholder="صدر البيت (الشطر الأول)" onchange="updateVerseField(${idx}, 'sadr', this.value)" class="flex-1 p-1.5 border border-slate-300 rounded text-xs font-semibold outline-none focus:border-amber-500">
+                    <input type="text" value="${v.sadr || ''}" placeholder="صدر البيت (الشطر الأول)" onchange="updateVerseField(${idx}, 'sadr', this.value)" onmouseup="savePoemSelection(this)" onkeyup="savePoemSelection(this)" onfocus="savePoemSelection(this)" onblur="savePoemSelection(this)" class="flex-1 p-1.5 border border-slate-300 rounded text-xs font-semibold outline-none focus:border-amber-500">
                     <span class="text-amber-500 font-bold px-1">|</span>
-                    <input type="text" value="${v.aja || ''}" placeholder="عجز البيت (الشطر الثاني)" onchange="updateVerseField(${idx}, 'aja', this.value)" class="flex-1 p-1.5 border border-slate-300 rounded text-xs font-semibold outline-none focus:border-amber-500">
+                    <input type="text" value="${v.aja || ''}" placeholder="عجز البيت (الشطر الثاني)" onchange="updateVerseField(${idx}, 'aja', this.value)" onmouseup="savePoemSelection(this)" onkeyup="savePoemSelection(this)" onfocus="savePoemSelection(this)" onblur="savePoemSelection(this)" class="flex-1 p-1.5 border border-slate-300 rounded text-xs font-semibold outline-none focus:border-amber-500">
                     <button type="button" onclick="moveVerseRow(${idx}, -1)" class="p-1 text-slate-500 hover:text-slate-800" title="للأعلى"><i class="fa-solid fa-arrow-up text-xs"></i></button>
                     <button type="button" onclick="moveVerseRow(${idx}, 1)" class="p-1 text-slate-500 hover:text-slate-800" title="للأسفل"><i class="fa-solid fa-arrow-down text-xs"></i></button>
                     <button type="button" onclick="removeVerseRow(${idx})" class="p-1 text-rose-500 hover:text-rose-700 shrink-0" title="حذف البيت"><i class="fa-solid fa-trash text-xs"></i></button>
@@ -2393,13 +2617,13 @@ OUTPUT ONLY A VALID JSON matching this schema:
         }
 
         function underlineSelectedPoemWord() {
-            const activeEl = document.activeElement;
+            const activeEl = lastPoemSelection.el;
             if (!activeEl || activeEl.tagName !== 'INPUT' || !activeEl.closest('#modal-poem-list')) {
                 showToast('يرجى تحديد الكلمة المراد تسطيرها داخل أحد شطري البيت أولاً', 'warning');
                 return;
             }
-            const start = activeEl.selectionStart;
-            const end = activeEl.selectionEnd;
+            const start = lastPoemSelection.start;
+            const end = lastPoemSelection.end;
             if (start === end) {
                 showToast('يرجى تحديد (تظليل) الكلمة المراد تسطيرها بالماوس أولاً', 'warning');
                 return;
@@ -2429,8 +2653,11 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 }
             }
 
+            lastPoemSelection.start = start;
+            lastPoemSelection.end = start + newText.length;
+
             activeEl.focus();
-            activeEl.setSelectionRange(start, start + newText.length);
+            activeEl.setSelectionRange(lastPoemSelection.start, lastPoemSelection.end);
             showToast('تم تسطير الكلمة المحددة بنجاح');
         }
 
@@ -2530,6 +2757,40 @@ OUTPUT ONLY A VALID JSON matching this schema:
             renderSubItemsModalUI();
         }
 
+        function renderMcqModalUI() {
+            const container = document.getElementById('modal-mcq-list');
+            if (!container) return;
+
+            if (currentModalOptions.length === 0) {
+                container.innerHTML = '<div class="text-center py-2 text-slate-400 italic text-[11px]">لا توجد خيارات مضافة. انقر على "+ إضافة خيار".</div>';
+                return;
+            }
+
+            container.innerHTML = currentModalOptions.map((opt, idx) => `
+                <div class="flex items-center gap-1.5 bg-white p-2 border border-slate-200 rounded shadow-sm">
+                    <span class="font-extrabold text-slate-700 text-xs w-6 text-center">${String.fromCharCode(65 + idx)})</span>
+                    <input type="text" value="${opt || ''}" placeholder="نص الخيار..." onchange="updateMcqOptionField(${idx}, this.value)" class="flex-1 p-1.5 border border-slate-300 rounded text-xs font-semibold outline-none focus:border-turquoise-500">
+                    <button type="button" onclick="removeMcqOptionRow(${idx})" class="p-1 text-rose-500 hover:text-rose-700 shrink-0" title="حذف الخيار"><i class="fa-solid fa-trash text-xs"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function addMcqOptionRow() {
+            currentModalOptions.push('');
+            renderMcqModalUI();
+        }
+
+        function updateMcqOptionField(idx, val) {
+            if (currentModalOptions[idx] !== undefined) {
+                currentModalOptions[idx] = val;
+            }
+        }
+
+        function removeMcqOptionRow(idx) {
+            currentModalOptions.splice(idx, 1);
+            renderMcqModalUI();
+        }
+
         function saveModalQuestion() {
             if (!editingTarget) return;
             const { pIdx, qIdx } = editingTarget;
@@ -2545,6 +2806,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
 
             q.subItems = currentModalSubItems.filter(item => (item.text && item.text.trim()) || (item.choicesText && item.choicesText.trim()));
             q.verses = currentModalVerses.filter(v => (v.sadr && v.sadr.trim()) || (v.aja && v.aja.trim()));
+            q.options = currentModalOptions.filter(opt => opt && opt.trim() !== '');
 
             closeModal();
             renderPages();
@@ -2590,19 +2852,18 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 ];
                 renderPoemModalUI();
             }
+
+            if (type === 'mcq' && currentModalOptions.length === 0) {
+                currentModalOptions = ['الخيار الأول', 'الخيار الثاني', 'الخيار الثالث', 'الخيار الرابع'];
+                renderMcqModalUI();
+            }
         }
 
-        function openSymbolsModal() {
-            document.getElementById('symbols-modal').classList.remove('hidden');
-        }
-        function closeSymbolsModal() {
-            document.getElementById('symbols-modal').classList.add('hidden');
-        }
+        function openSymbolsModal() { document.getElementById('symbols-modal').classList.remove('hidden'); }
+        function closeSymbolsModal() { document.getElementById('symbols-modal').classList.add('hidden'); }
         function insertSymbol(sym) {
             const textEl = document.getElementById('modal-qtext');
-            if (textEl) {
-                textEl.value += sym;
-            }
+            if (textEl) { textEl.value += sym; }
         }
 
         let eqHistory = [''];
@@ -2624,11 +2885,8 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 }
             });
 
-            if (tab === 'symbols') {
-                filterSymbolGroup('basic');
-            } else if (tab === 'matrix') {
-                generateMatrixCellsUI();
-            }
+            if (tab === 'symbols') { filterSymbolGroup('basic'); } 
+            else if (tab === 'matrix') { generateMatrixCellsUI(); }
         }
 
         function pushEqHistory(val) {
@@ -2664,9 +2922,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
             updateEqPreview();
         }
 
-        function closeEquationModal() {
-            document.getElementById('equation-modal').classList.add('hidden');
-        }
+        function closeEquationModal() { document.getElementById('equation-modal').classList.add('hidden'); }
 
         function clearEqInput() {
             document.getElementById('eq-input').value = '';
@@ -2743,6 +2999,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
             }
         }
 
+        // 13 Categorized Symbol Groups
         const symbolGroupsData = {
             basic: ['+', '−', '\\times', '\\div', '\\pm', '\\mp', '=', '\\neq', '\\approx', '\\equiv', '\\propto'],
             compare: ['<', '>', '\\le', '\\ge', '=', '\\neq', '\\approx', '\\equiv', '\\propto'],
@@ -2932,6 +3189,99 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     labelsSvg += `<text x="${pVertex.x + 32}" y="${pVertex.y - 12}" font-size="10" font-weight="bold" fill="${color}">${angleVal || '60°'}</text>`;
                     break;
                 }
+                case 'line': {
+                    const y = half;
+                    const x1 = 20, x2 = s - 20;
+                    mainShapeSvg = `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${color}" stroke-width="${st}" />`;
+                    labelsSvg += `<text x="${x1}" y="${y - 8}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[0] || 'A'}</text>`;
+                    labelsSvg += `<text x="${x2}" y="${y - 8}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[1] || 'B'}</text>`;
+                    if (sList[0]) labelsSvg += `<text x="${half}" y="${y - 8}" text-anchor="middle" font-size="10" font-weight="bold" fill="${color}">${sList[0]}</text>`;
+                    break;
+                }
+                case 'parallel_lines': {
+                    const y1 = half - 15, y2 = half + 15;
+                    const x1 = 20, x2 = s - 20;
+                    mainShapeSvg = `
+                        <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y1}" stroke="${color}" stroke-width="${st}" />
+                        <line x1="${x1}" y1="${y2}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${st}" />
+                    `;
+                    if (showParallel) {
+                        mainShapeSvg += `<polygon points="${half},${y1-4} ${half+6},${y1} ${half},${y1+4}" fill="${color}" />`;
+                        mainShapeSvg += `<polygon points="${half},${y2-4} ${half+6},${y2} ${half},${y2+4}" fill="${color}" />`;
+                    }
+                    labelsSvg += `<text x="${x1}" y="${y1 - 6}" font-size="10" font-weight="bold" fill="${lblColor}">${vList[0] || 'L1'}</text>`;
+                    labelsSvg += `<text x="${x1}" y="${y2 + 14}" font-size="10" font-weight="bold" fill="${lblColor}">${vList[1] || 'L2'}</text>`;
+                    break;
+                }
+                case 'perpendicular_lines': {
+                    mainShapeSvg = `
+                        <line x1="20" y1="${half}" x2="${s - 20}" y2="${half}" stroke="${color}" stroke-width="${st}" />
+                        <line x1="${half}" y1="20" x2="${half}" y2="${s - 20}" stroke="${color}" stroke-width="${st}" />
+                    `;
+                    if (showRightAngle) {
+                        mainShapeSvg += `<rect x="${half}" y="${half - 10}" width="10" height="10" stroke="${color}" stroke-width="1.2" fill="none" />`;
+                    }
+                    break;
+                }
+                case 'arrow': {
+                    const y = half;
+                    const x1 = 20, x2 = s - 20;
+                    mainShapeSvg = `
+                        <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="${color}"/></marker></defs>
+                        <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${color}" stroke-width="${st}" marker-end="url(#arrowhead)" />
+                    `;
+                    if (sList[0]) labelsSvg += `<text x="${half}" y="${y - 8}" text-anchor="middle" font-size="10" font-weight="bold" fill="${color}">${sList[0]}</text>`;
+                    break;
+                }
+                case 'axes': {
+                    mainShapeSvg = `
+                        <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="${color}"/></marker></defs>
+                        <line x1="20" y1="${half}" x2="${s - 20}" y2="${half}" stroke="${color}" stroke-width="${st}" marker-end="url(#arrowhead)" />
+                        <line x1="${half}" y1="${s - 20}" x2="${half}" y2="20" stroke="${color}" stroke-width="${st}" marker-end="url(#arrowhead)" />
+                    `;
+                    labelsSvg += `<text x="${s - 20}" y="${half + 14}" text-anchor="end" font-size="11" font-weight="bold" fill="${lblColor}">x</text>`;
+                    labelsSvg += `<text x="${half - 10}" y="30" text-anchor="end" font-size="11" font-weight="bold" fill="${lblColor}">y</text>`;
+                    labelsSvg += `<text x="${half - 8}" y="${half + 12}" text-anchor="end" font-size="10" font-weight="bold" fill="${lblColor}">0</text>`;
+                    break;
+                }
+                case 'parallelogram': {
+                    const h = s - 60;
+                    const w = s - 60;
+                    const x = 30, y = 30;
+                    const shift = 20;
+                    mainShapeSvg = `<polygon points="${x + shift},${y} ${x + w + shift},${y} ${x + w},${y + h} ${x},${y + h}" stroke="${color}" stroke-width="${st}" fill="none" />`;
+                    labelsSvg += `<text x="${x + shift}" y="${y - 6}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[0] || 'A'}</text>`;
+                    labelsSvg += `<text x="${x + w + shift}" y="${y - 6}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[1] || 'B'}</text>`;
+                    labelsSvg += `<text x="${x + w}" y="${y + h + 14}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[2] || 'C'}</text>`;
+                    labelsSvg += `<text x="${x}" y="${y + h + 14}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[3] || 'D'}</text>`;
+                    break;
+                }
+                case 'rhombus': {
+                    const pTop = { x: half, y: 20 };
+                    const pRight = { x: s - 20, y: half };
+                    const pBottom = { x: half, y: s - 20 };
+                    const pLeft = { x: 20, y: half };
+                    mainShapeSvg = `<polygon points="${pTop.x},${pTop.y} ${pRight.x},${pRight.y} ${pBottom.x},${pBottom.y} ${pLeft.x},${pLeft.y}" stroke="${color}" stroke-width="${st}" fill="none" />`;
+                    labelsSvg += `<text x="${pTop.x}" y="${pTop.y - 6}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[0] || 'A'}</text>`;
+                    labelsSvg += `<text x="${pRight.x + 10}" y="${pRight.y + 4}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[1] || 'B'}</text>`;
+                    labelsSvg += `<text x="${pBottom.x}" y="${pBottom.y + 14}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[2] || 'C'}</text>`;
+                    labelsSvg += `<text x="${pLeft.x - 10}" y="${pLeft.y + 4}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[3] || 'D'}</text>`;
+                    break;
+                }
+                case 'trapezoid': {
+                    const h = s - 60;
+                    const wBottom = s - 40;
+                    const wTop = s - 100;
+                    const xBottom = 20, yBottom = s - 30;
+                    const xTop = 20 + (wBottom - wTop) / 2, yTop = 30;
+                    mainShapeSvg = `<polygon points="${xTop},${yTop} ${xTop + wTop},${yTop} ${xBottom + wBottom},${yBottom} ${xBottom},${yBottom}" stroke="${color}" stroke-width="${st}" fill="none" />`;
+                    labelsSvg += `<text x="${xTop}" y="${yTop - 6}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[0] || 'A'}</text>`;
+                    labelsSvg += `<text x="${xTop + wTop}" y="${yTop - 6}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[1] || 'B'}</text>`;
+                    labelsSvg += `<text x="${xBottom + wBottom}" y="${yBottom + 14}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[2] || 'C'}</text>`;
+                    labelsSvg += `<text x="${xBottom}" y="${yBottom + 14}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[3] || 'D'}</text>`;
+                    break;
+                }
                 default: {
                     mainShapeSvg = `<circle cx="${half}" cy="${half}" r="${half - 20}" stroke="${color}" stroke-width="${st}" fill="none" />`;
                 }
@@ -3040,6 +3390,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
         function addNewPage() {
             state.pages.push({
                 id: Date.now(),
+                drawings: [], // ضمان التهيئة في الصفحات الجديدة
                 questions: [
                     { id: Date.now() + 1, type: 'written', text: 'اكتب نص السؤال هنا...', marks: 2, answerLines: 1, color: '#0f172a' }
                 ]
@@ -3051,8 +3402,9 @@ OUTPUT ONLY A VALID JSON matching this schema:
         function clearCurrentPage() {
             const lastPageIdx = state.pages.length - 1;
             state.pages[lastPageIdx].questions = [];
+            state.pages[lastPageIdx].drawings = []; // إفراغ الرسم مع الأسئلة
             renderPages();
-            showToast('تم إخلاء جميع الأسئلة من الصفحة الحالية');
+            showToast('تم إخلاء جميع الأسئلة والرسم من الصفحة الحالية');
         }
 
         function setLayoutDirection(dir) {
@@ -3124,32 +3476,24 @@ OUTPUT ONLY A VALID JSON matching this schema:
             if (!text) return '';
             let html = text;
 
+            // تم إيقاف الاعتماد على &nbsp; لعدم توافقه مع الأسطر، واستبدل بـ CSS whitespace-pre-wrap في واجهة العرض
+            // html = html.replace(/ {2,}/g, match => '&nbsp;'.repeat(match.length));
+
             html = html.replace(/\[u\]([\s\S]*?)\[\/u\]/g, '<u style="text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1.5px;">$1</u>');
             html = html.replace(/<u>([\s\S]*?)<\/u>/g, '<u style="text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1.5px;">$1</u>');
 
-            // --- Regex for $...$ and $$...$$ tags ---
             html = html.replace(/\$\$([\s\S]*?)\$\$/g, (match, latex) => {
-                try {
-                    return `<span class="math-rendered-inline" dir="ltr">${katex.renderToString(latex, { displayMode: true, throwOnError: false })}</span>`;
-                } catch (e) {
-                    return `<span class="text-red-500 font-mono">${latex}</span>`;
-                }
+                try { return `<span class="math-rendered-inline" dir="ltr">${katex.renderToString(latex, { displayMode: true, throwOnError: false })}</span>`; } 
+                catch (e) { return `<span class="text-red-500 font-mono">${latex}</span>`; }
             });
             html = html.replace(/\$([\s\S]*?)\$/g, (match, latex) => {
-                try {
-                    return `<span class="math-rendered-inline" dir="ltr">${katex.renderToString(latex, { throwOnError: false })}</span>`;
-                } catch (e) {
-                    return `<span class="text-red-500 font-mono">${latex}</span>`;
-                }
+                try { return `<span class="math-rendered-inline" dir="ltr">${katex.renderToString(latex, { throwOnError: false })}</span>`; } 
+                catch (e) { return `<span class="text-red-500 font-mono">${latex}</span>`; }
             });
-            // ---------------------------------------------
 
             html = html.replace(/\[math\]([\s\S]*?)\[\/math\]/g, (match, latex) => {
-                try {
-                    return `<span class="math-rendered-inline">${katex.renderToString(latex, { throwOnError: false })}</span>`;
-                } catch (e) {
-                    return `<span class="text-red-500 font-mono">${latex}</span>`;
-                }
+                try { return `<span class="math-rendered-inline">${katex.renderToString(latex, { throwOnError: false })}</span>`; } 
+                catch (e) { return `<span class="text-red-500 font-mono">${latex}</span>`; }
             });
 
             html = html.replace(/\[shape\]([\s\S]*?)\[\/shape\]/g, (match, svg) => {
@@ -3177,8 +3521,43 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 pageEl.className = 'a4-page border border-slate-200';
                 pageEl.style.fontSize = `${state.layout.fontSize || 14}px`;
 
+                // SVG Layer for Drawings
+                const svgLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svgLayer.style.position = 'absolute';
+                svgLayer.style.top = '0';
+                svgLayer.style.left = '0';
+                svgLayer.style.width = '100%';
+                svgLayer.style.height = '100%';
+                svgLayer.style.pointerEvents = isDrawingMode ? 'auto' : 'none';
+                svgLayer.style.touchAction = isDrawingMode ? 'none' : 'auto';
+                svgLayer.style.zIndex = '50';
+
+                if (isDrawingMode) {
+                    svgLayer.addEventListener('pointerdown', (e) => startDrawing(e, pIdx));
+                    svgLayer.addEventListener('pointermove', continueDrawing);
+                    svgLayer.addEventListener('pointerup', stopDrawing);
+                    svgLayer.addEventListener('pointercancel', stopDrawing);
+                }
+
+                if (page.drawings && page.drawings.length > 0) {
+                    page.drawings.forEach(d => {
+                        const pathStr = typeof d === 'string' ? d : d.d;
+                        const pathColor = typeof d === 'string' ? '#0f172a' : (d.color || '#0f172a');
+                        const pathWidth = typeof d === 'string' ? '2.5' : (d.width || 2.5);
+
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        path.setAttribute('d', pathStr);
+                        path.setAttribute('stroke', pathColor);
+                        path.setAttribute('stroke-width', pathWidth);
+                        path.setAttribute('fill', 'none');
+                        path.setAttribute('stroke-linecap', 'round');
+                        path.setAttribute('stroke-linejoin', 'round');
+                        svgLayer.appendChild(path);
+                    });
+                }
+                
                 let headerHtml = `
-                    <div class="border-b-2 border-turquoise-700 pb-3 mb-4" style="direction: rtl; text-align: right;">
+                    <div class="border-b-2 border-turquoise-700 pb-3 mb-4 relative z-20" style="direction: rtl; text-align: right;">
                         <div class="flex items-center justify-between gap-4">
                             <div class="text-right space-y-0.5">
                                 <h2 class="font-extrabold text-base text-navy-900">${state.header.schoolName}</h2>
@@ -3213,7 +3592,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     </div>
                 `;
 
-                let questionsHtml = `<div class="questions-container ${state.layout.columns === 2 ? 'cols-2' : ''}" style="${qDirStyle}">`;
+                let questionsHtml = `<div class="questions-container relative z-20 ${state.layout.columns === 2 ? 'cols-2' : ''}" style="${qDirStyle}">`;
 
                 page.questions.forEach((q, qIdx) => {
                     let label = '';
@@ -3229,8 +3608,10 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     if (q.type === 'tf') {
                         typeSpecificHtml = ' <span class="inline-block border border-slate-400 bg-slate-50 font-bold text-slate-800 rounded px-2.5 py-0.5 text-xs shadow-sm whitespace-nowrap mx-1" title="موضع كتابة صح أو خطأ">( &nbsp; &nbsp; &nbsp; &nbsp; )</span>';
                     } else if (q.type === 'mcq' && q.options && q.options.length > 0) {
-                        typeSpecificHtml = `<div class="choices-row text-xs text-slate-700">
-                            ${q.options.map((opt, i) => `<div>${String.fromCharCode(65 + i)}) ${parseQuestionContent(opt)}</div>`).join('')}
+                        const hasLongOption = q.options.some(opt => opt.length > 35);
+                        const gridClass = hasLongOption ? 'grid-cols-1' : 'grid-cols-2';
+                        typeSpecificHtml = `<div class="grid ${gridClass} gap-y-3 gap-x-6 text-xs text-slate-700 mt-3 w-full text-left" dir="ltr">
+                            ${q.options.map((opt, i) => `<div class="flex gap-1.5 items-start"><span class="font-bold shrink-0">${String.fromCharCode(65 + i)})</span><div dir="auto" class="flex-1 whitespace-pre-wrap">${parseQuestionContent(opt)}</div></div>`).join('')}
                         </div>`;
                     }
 
@@ -3241,8 +3622,8 @@ OUTPUT ONLY A VALID JSON matching this schema:
                         q.verses.forEach((v) => {
                             poemHtml += `
                                 <div class="grid grid-cols-2 gap-6 text-xs font-bold leading-relaxed border-b border-dotted border-amber-200/80 pb-1.5 last:border-0 text-slate-900">
-                                    <div class="${qDir === 'ltr' ? 'text-left pl-1' : 'text-right pr-1'}">${parseQuestionContent(v.sadr)}</div>
-                                    <div class="${qDir === 'ltr' ? 'text-right pr-1' : 'text-left pl-1'}">${parseQuestionContent(v.aja)}</div>
+                                    <div class="${qDir === 'ltr' ? 'text-left pl-1' : 'text-right pr-1'} whitespace-pre-wrap">${parseQuestionContent(v.sadr)}</div>
+                                    <div class="${qDir === 'ltr' ? 'text-right pr-1' : 'text-left pl-1'} whitespace-pre-wrap">${parseQuestionContent(v.aja)}</div>
                                 </div>
                             `;
                         });
@@ -3255,12 +3636,12 @@ OUTPUT ONLY A VALID JSON matching this schema:
                         subItemsHtml = `<div class="mt-2 space-y-2 ${subBorderClass}">`;
                         q.subItems.forEach((sub) => {
                             const symBadge = sub.symbol ? `<span class="inline-block font-extrabold text-turquoise-800 bg-turquoise-50 px-2 py-0.5 rounded border border-turquoise-200 text-xs shadow-sm mx-1">${sub.symbol}:</span>` : '';
-                            const choicesBadge = sub.choicesText ? `<span class="text-slate-700 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded font-normal text-xs mx-1 inline-block">${parseQuestionContent(sub.choicesText)}</span>` : '';
+                            const choicesBadge = sub.choicesText ? `<span class="text-slate-700 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded font-normal text-xs mx-1 inline-block whitespace-pre-wrap">${parseQuestionContent(sub.choicesText)}</span>` : '';
                             
                             subItemsHtml += `
                                 <div class="leading-relaxed flex flex-wrap items-baseline gap-1 my-1">
                                     ${symBadge}
-                                    <span class="font-bold text-slate-800 mx-1">${parseQuestionContent(sub.text)}</span>
+                                    <span class="font-bold text-slate-800 mx-1 whitespace-pre-wrap">${parseQuestionContent(sub.text)}</span>
                                     ${choicesBadge}
                                 </div>
                             `;
@@ -3283,10 +3664,10 @@ OUTPUT ONLY A VALID JSON matching this schema:
 
                     questionsHtml += `
                         <div class="question-item group" style="margin-bottom: ${state.layout.questionSpacing || 12}px;">
-                            <div class="flex items-start justify-between gap-1">
+                            <div class="flex items-start justify-between gap-1 relative z-30">
                                 <div class="font-bold leading-relaxed flex-1" style="${qColorStyle}">
                                     <span class="text-turquoise-800 cursor-pointer hover:underline" onclick="openQuestionModal(${pIdx}, ${qIdx})">${label}</span>
-                                    <span>${parseQuestionContent(q.text)}</span>
+                                    <span class="whitespace-pre-wrap">${parseQuestionContent(q.text)}</span>
                                     ${marksText}
                                     ${typeSpecificHtml}
                                 </div>
@@ -3298,9 +3679,11 @@ OUTPUT ONLY A VALID JSON matching this schema:
                                     <button onclick="deleteQuestion(${pIdx}, ${qIdx})" class="text-rose-500 hover:text-rose-700 p-0.5" title="حذف"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </div>
                             </div>
-                            ${poemHtml}
-                            ${subItemsHtml}
-                            ${answerLinesHtml}
+                            <div class="relative z-30">
+                                ${poemHtml}
+                                ${subItemsHtml}
+                                ${answerLinesHtml}
+                            </div>
                         </div>
                     `;
                 });
@@ -3308,6 +3691,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 questionsHtml += `</div>`;
 
                 pageEl.innerHTML = headerHtml + questionsHtml;
+                pageEl.appendChild(svgLayer);
                 wrapper.appendChild(pageEl);
             });
 
@@ -3327,6 +3711,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                         .question-item { margin-bottom: 20px; }
                         .choices-row { display: flex; justify-content: space-between; direction: ltr; margin-top: 10px; }
                         .choices-row span { margin: 0 10px; }
+                        .whitespace-pre-wrap { white-space: pre-wrap; }
                     </style>
                 </head>
                 <body>
@@ -3484,13 +3869,14 @@ OUTPUT ONLY A VALID JSON matching this schema:
         }
 
         // ==========================================
-        //  Local Storage State Management
+        //  Local Storage State Management (Added)
         // ==========================================
         function saveLocalState() {
             try {
                 localStorage.setItem('marmara_exam_state', JSON.stringify(state));
             } catch (e) {
                 console.warn("Could not save state to localStorage (possibly out of quota):", e);
+                // لن نزعج المستخدم برسائل الخطأ هنا لتجنب التشتيت
             }
         }
 
@@ -3564,14 +3950,15 @@ OUTPUT ONLY A VALID JSON matching this schema:
             const fontEl = document.querySelector('input[type="range"][oninput*="setFontSize"]');
             if (fontEl) fontEl.value = state.layout.fontSize || 14;
         }
+        // ==========================================
 
         window.onload = function() {
-            loadLocalState();
-            ExamMarginManager.init();
-            initHeaderInputs();
-            syncUIWithState();
+            loadLocalState(); // جلب البيانات المحفوظة محلياً عند بدء التحميل
+            ExamMarginManager.init(); // مسبقاً تعمل على LocalStorage منفصل
+            initHeaderInputs(); // ربط الحقول بالبيانات المسترجعة
+            syncUIWithState(); // مزامنة أزرار التحكم بالبيانات المسترجعة
             switchTab('importTab');
-            renderPages();
+            renderPages(); // معالجة الصفحة وإعادة حفظها
             checkStandaloneMode();
         };
     </script>

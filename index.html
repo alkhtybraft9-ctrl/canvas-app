@@ -1,4 +1,4 @@
-     <!DOCTYPE html>
+       <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -27,7 +27,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    
+
     <!-- KaTeX Math Rendering Library -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
@@ -309,9 +309,9 @@
     </header>
 
     <div class="flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col md:flex-row gap-6">
-        
+
         <div class="w-full md:w-80 lg:w-96 shrink-0 space-y-4 no-print">
-            
+
             <!-- Navigation Tabs -->
             <div class="bg-white rounded-xl shadow-sm p-1.5 flex border border-slate-200">
                 <button onclick="switchTab('importTab')" id="btn-importTab" class="tab-btn bg-turquoise-50 text-turquoise-700 border-b-2 border-turquoise-600 active flex-1 py-2 rounded-lg text-xs font-bold transition hover:text-turquoise-700">
@@ -1426,7 +1426,7 @@
             } else {
                 const iframeNotice = document.getElementById('iframe-notice');
                 const modalTitle = document.getElementById('install-modal-title');
-                
+
                 if (isInIframe()) {
                     if (iframeNotice) iframeNotice.classList.remove('hidden');
                     if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-download text-amber-600 text-lg"></i> تثبيت التطبيق';
@@ -1513,12 +1513,12 @@
             sourcePreviewDataUrl: '',
             questions: []
         };
-        
+
         function toggleMainHeader() {
             const headers = document.querySelectorAll('header, .toolbar, .top-bar, .navbar, #header-controls, .header-container');
             const btnText = document.getElementById('toggleText');
             const btnIcon = document.getElementById('toggleIcon');
-            
+
             let isHidden = false;
             headers.forEach(el => {
                 if (el.style.display === 'none') {
@@ -1881,7 +1881,7 @@
 
                         const pdfData = await fileToTypedArray(file);
                         const pdfDoc = await pdfjsLib.getDocument({ data: pdfData }).promise;
-                        
+
                         let extractedPdfText = '';
                         let pageCanvasDataUrls = [];
 
@@ -2267,7 +2267,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
             const lockBtn = document.getElementById('lockBtn');
             const inputs = document.querySelectorAll('#tab-headerTab input');
             inputs.forEach(inp => inp.disabled = state.headerLocked);
-            
+
             if (lockBtn) {
                 if (state.headerLocked) {
                     lockBtn.innerHTML = '<i class="fa-solid fa-lock ml-1 text-rose-600"></i> الرأس مقفل';
@@ -2412,9 +2412,9 @@ OUTPUT ONLY A VALID JSON matching this schema:
             } else {
                 newText = `[u]${selectedText}[/u]`;
             }
-            
+
             activeEl.value = val.substring(0, start) + newText + val.substring(end);
-            
+
             const parentRow = activeEl.closest('.flex');
             if (parentRow) {
                 const rows = Array.from(document.querySelectorAll('#modal-poem-list > div'));
@@ -2704,7 +2704,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
 
             const inserted = beforeText + selectedText + afterText;
             inputEl.value = inputEl.value.substring(0, start) + inserted + inputEl.value.substring(end);
-            
+
             const newCursorPos = start + beforeText.length + selectedText.length;
             inputEl.focus();
             inputEl.setSelectionRange(newCursorPos, newCursorPos);
@@ -2852,7 +2852,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
             const s = parseInt(size) || 130;
             const st = parseInt(stroke) || 2;
             const half = s / 2;
-            
+
             const vList = (verticesText || '').split(',').map(v => v.trim()).filter(Boolean);
             const sList = (sidesText || '').split(',').map(s => s.trim()).filter(Boolean);
             const angleVal = (angleText || '').trim();
@@ -2868,7 +2868,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     const ptC = { x: 15, y: s - 25 };
 
                     mainShapeSvg = `<polygon points="${ptA.x},${ptA.y} ${ptB.x},${ptB.y} ${ptC.x},${ptC.y}" stroke="${color}" stroke-width="${st}" fill="none" />`;
-                    
+
                     labelsSvg += `<text x="${ptA.x}" y="${ptA.y - 4}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[0] || 'A'}</text>`;
                     labelsSvg += `<text x="${ptB.x + 8}" y="${ptB.y + 12}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[1] || 'B'}</text>`;
                     labelsSvg += `<text x="${ptC.x - 8}" y="${ptC.y + 12}" text-anchor="middle" font-size="11" font-weight="bold" fill="${lblColor}">${vList[2] || 'C'}</text>`;
@@ -2894,7 +2894,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     const x = 20, y = isRect ? (s - h)/2 : 20;
 
                     mainShapeSvg = `<rect x="${x}" y="${y}" width="${w}" height="${h}" stroke="${color}" stroke-width="${st}" fill="none" />`;
-                    
+
                     labelsSvg += `<text x="${x}" y="${y - 4}" font-size="11" font-weight="bold" fill="${lblColor}">${vList[0] || 'A'}</text>`;
                     labelsSvg += `<text x="${x + w}" y="${y - 4}" font-size="11" font-weight="bold" fill="${lblColor}">${vList[1] || 'B'}</text>`;
                     labelsSvg += `<text x="${x + w}" y="${y + h + 14}" font-size="11" font-weight="bold" fill="${lblColor}">${vList[2] || 'C'}</text>`;
@@ -3256,7 +3256,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                         q.subItems.forEach((sub) => {
                             const symBadge = sub.symbol ? `<span class="inline-block font-extrabold text-turquoise-800 bg-turquoise-50 px-2 py-0.5 rounded border border-turquoise-200 text-xs shadow-sm mx-1">${sub.symbol}:</span>` : '';
                             const choicesBadge = sub.choicesText ? `<span class="text-slate-700 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded font-normal text-xs mx-1 inline-block">${parseQuestionContent(sub.choicesText)}</span>` : '';
-                            
+
                             subItemsHtml += `
                                 <div class="leading-relaxed flex flex-wrap items-baseline gap-1 my-1">
                                     ${symBadge}
@@ -3475,7 +3475,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 a.download = `${(state.header.examTitle || 'exam').replace(/\s+/g, '_')}_مشاركة_الاختبار.json`;
                 a.click();
                 URL.revokeObjectURL(url);
-                
+
                 alert('✅ تم تصدير ملف مشاركة الامتحان بنجاح!\nقم بإرسال هذا الملف الصغير للأستاذ، وسيمكنه فتحه فوراً عبر زر (📂 فتح ملف عمل).');
             } catch (e) {
                 console.error(e);

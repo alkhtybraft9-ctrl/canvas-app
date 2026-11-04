@@ -171,10 +171,168 @@
 
         .img-rendered-container {
             display: block;
-            margin: 8px 0;
+            margin: 0;
             max-width: 100%;
             break-inside: avoid;
             page-break-inside: avoid;
+        }
+        /* حاوية صورة قابلة للتحجيم باللمس أو الفأرة مع بقاء تناسب الصورة */
+        .question-item[data-images-layout="row"] .img-resize-wrapper {
+            display: inline-block;
+            vertical-align: top;
+            margin: 12px 8px 10px 0;
+        }
+        .question-item[data-images-layout="column"] .img-resize-wrapper,
+        .question-item:not([data-images-layout]) .img-resize-wrapper {
+            display: block;
+            margin: 12px 0 10px auto;
+        }
+        .img-resize-wrapper {
+            position: relative;
+            display: block;
+            width: 240px;
+            max-width: 100%;
+            margin: 12px 0 10px auto;
+            line-height: normal;
+            box-sizing: border-box;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .img-resize-toolbar {
+            display: flex;
+            position: relative;
+            left: auto;
+            top: auto;
+            width: min(100%, 310px);
+            min-height: 32px;
+            height: auto;
+            margin: 0 0 6px 0;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 5px;
+            background: #0f172a;
+            border: 1px solid #0d9488;
+            border-radius: 7px;
+            z-index: 80;
+            line-height: normal;
+            box-sizing: border-box;
+            overflow: visible;
+        }
+        .img-resize-wrapper.image-resize-active .img-resize-toolbar { display: flex; }
+        .img-layout-select {
+            flex: 0 0 auto;
+            max-width: 96px;
+            min-width: 82px;
+            height: 24px;
+            padding: 1px 3px;
+            border: 1px solid #0d9488;
+            border-radius: 4px;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 10px;
+            line-height: 1.2;
+        }
+        .question-item[data-images-layout="row"] .question-inline-edit .img-resize-wrapper {
+            display: inline-block;
+            vertical-align: top;
+            margin: 10px 8px 10px 0;
+        }
+        .question-item[data-images-layout="column"] .question-inline-edit .img-resize-wrapper,
+        .question-item:not([data-images-layout]) .question-inline-edit .img-resize-wrapper {
+            display: block;
+            margin: 10px 0 10px auto;
+        }
+        .img-resize-toolbar button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 22px;
+            flex: 0 0 30px;
+            border-radius: 4px;
+            background: #0d9488;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 18px;
+            touch-action: manipulation;
+        }
+        .img-resize-toolbar input[type="range"] {
+            flex: 1;
+            min-width: 35px;
+            height: 20px;
+            accent-color: #2dd4bf;
+            touch-action: pan-x;
+            min-width: 70px;
+        }
+        .img-resize-toolbar output {
+            color: white;
+            font: 10px/1 sans-serif;
+            min-width: 35px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .img-caption {
+            display: block;
+            width: 100%;
+            min-height: 28px;
+            margin: 5px 0 0;
+            padding: 4px 6px;
+            box-sizing: border-box;
+            border: 1px dashed #cbd5e1;
+            border-radius: 4px;
+            color: #334155;
+            font-size: 12px;
+            font-weight: normal;
+            line-height: 1.5;
+            text-align: right;
+            white-space: pre-wrap;
+            outline: none;
+        }
+        .img-caption:empty::before {
+            content: attr(data-placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+        }
+        .img-caption:focus {
+            border-color: #0d9488;
+            background: #f0fdfa;
+        }
+        @media print {
+            .img-caption { border-color: transparent; padding: 2px 0; }
+            .img-caption:empty { display: none; }
+        }
+        .img-resize-wrapper > img {
+            display: block;
+            width: 100%;
+            max-width: none !important;
+            height: auto !important;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(15,23,42,.10);
+            pointer-events: none;
+        }
+        .img-resize-handle {
+            display: none;
+            position: absolute;
+            right: -7px;
+            bottom: -7px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 50%;
+            background: #0d9488;
+            box-shadow: 0 1px 4px rgba(0,0,0,.25);
+            cursor: nwse-resize;
+            touch-action: none;
+            z-index: 8;
+        }
+        .img-resize-wrapper.image-resize-active .img-resize-handle { display: none; }
+        .img-resize-wrapper.image-resizing { outline: 1px dashed #0d9488; }
+        @media print {
+            .img-resize-handle, .img-resize-toolbar { display: none !important; }
+            .img-resize-wrapper { max-width: 100% !important; margin-top: 8px !important; }
         }
 
         .choices-row {
@@ -815,6 +973,29 @@
                 <div>
                     <label class="block font-bold text-slate-700 mb-1">نص السؤال الرئيسي:</label>
                     <textarea id="modal-qtext" rows="3" class="w-full p-2.5 border border-slate-300 rounded text-slate-800 outline-none leading-relaxed focus:ring-1 focus:ring-turquoise-500 font-mono text-xs"></textarea>
+                    <div id="advanced-question-tools" class="mt-2 p-2 border border-turquoise-200 rounded-lg bg-turquoise-50/40 space-y-2">
+                        <div class="font-bold text-slate-700">إضافات مباشرة إلى السؤال</div>
+                        <div class="flex flex-wrap gap-2 items-end">
+                            <label>صفوف الجدول <input id="adv-table-rows" type="number" min="1" max="20" value="3" class="w-14 p-1 border rounded"></label>
+                            <label>أعمدة الجدول <input id="adv-table-cols" type="number" min="1" max="12" value="3" class="w-14 p-1 border rounded"></label>
+                            <button type="button" onclick="MarmaraAdvanced.insertTable()" class="px-2 py-1 bg-white border rounded font-bold">إدراج جدول</button>
+                            <details class="w-full mt-1 border border-slate-200 rounded-md bg-white p-2">
+                                <summary class="cursor-pointer select-none font-bold text-slate-700 text-xs">إعداد سؤال التوصيل (افتح عند الحاجة فقط)</summary>
+                                <div class="flex flex-wrap items-end gap-3 pt-2">
+                                    <label class="flex items-center gap-1">عدد عناصر العمود (أ) <input id="adv-match-a" type="number" min="1" max="20" value="3" class="w-16 p-1 border rounded"></label>
+                                    <label class="flex items-center gap-1">عدد عناصر العمود (ب) <input id="adv-match-b" type="number" min="1" max="20" value="3" class="w-16 p-1 border rounded"></label>
+                                    <button type="button" onclick="MarmaraAdvanced.insertMatch()" class="px-3 py-2 bg-turquoise-50 border border-turquoise-300 rounded font-bold text-turquoise-900">إدراج سؤال التوصيل</button>
+                                </div>
+                                <p class="text-[10px] text-slate-500 mt-1">بعد الإدراج، اكتب مباشرة داخل كل خانة في العمودين. لا تحتاج إلى فتح نافذة تعديل لكل خانة.</p>
+                            </details>
+                        </div>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <input id="adv-color" type="color" value="#dc2626" class="w-9 h-8 border rounded" title="لون النص المحدد">
+                            <button type="button" onclick="MarmaraAdvanced.colorSelection()" class="px-2 py-1 bg-white border rounded font-bold">تلوين النص المحدد</button>
+                            <button type="button" onclick="MarmaraAdvanced.resizeImages()" class="px-2 py-1 bg-white border rounded font-bold">تفعيل تحجيم الصور</button>
+                        </div>
+                        <p class="text-[10px] text-slate-500">يمكن تحرير نص السؤال مباشرة من ورقة الاختبار بالنقر عليه. الجداول والتوصيل يبقيان قابلين للتحرير من نص السؤال.</p>
+                    </div>
                 </div>
 
                 <!-- Dedicated Poem Editor Section -->
@@ -1283,6 +1464,20 @@
 
                 <div class="p-4 bg-white border border-slate-200 rounded-lg flex items-center justify-center min-h-[160px] shadow-inner">
                     <div id="shape-preview-box"></div>
+                </div>
+                <div class="p-3 bg-turquoise-50 border border-turquoise-200 rounded-lg space-y-2">
+                    <b class="text-slate-800">تحرير هندسي حر داخل الشكل</b>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label>العرض <input id="shape-free-width" type="number" min="40" max="600" value="130" class="w-full p-1 border rounded" oninput="updateShapePreview()"></label>
+                        <label>الارتفاع <input id="shape-free-height" type="number" min="40" max="600" value="130" class="w-full p-1 border rounded" oninput="updateShapePreview()"></label>
+                        <label>التدوير ° <input id="shape-free-rotate" type="number" min="-360" max="360" value="0" class="w-full p-1 border rounded" oninput="updateShapePreview()"></label>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="setShapeEditMode('line')" class="px-2 py-1 bg-white border rounded font-bold">رسم خط داخلي بالنقر على نقطتين</button>
+                        <button type="button" onclick="setShapeEditMode('label')" class="px-2 py-1 bg-white border rounded font-bold">إضافة حرف/رمز بمكان تختاره</button>
+                        <button type="button" onclick="clearShapeOverlays()" class="px-2 py-1 bg-white border rounded font-bold text-rose-700">مسح الإضافات</button>
+                    </div>
+                    <p id="shape-edit-hint" class="text-[10px] text-slate-600">اختر أداة ثم انقر داخل الشكل. يمكن رسم خطوط وتقسيمات وإضافة تسميات في المواضع التي تحددها.</p>
                 </div>
             </div>
 
@@ -3097,8 +3292,56 @@ OUTPUT ONLY A VALID JSON matching this schema:
             showToast('تم إدراج المعادلة في السؤال بنجاح');
         }
 
+        let shapeEditMode = null;
+        let shapeOverlayMarkup = [];
+        let shapeFirstPoint = null;
+        function setShapeEditMode(mode) {
+            shapeEditMode=mode; shapeFirstPoint=null;
+            const hint=document.getElementById('shape-edit-hint');
+            if(hint) hint.textContent = mode==='line' ? 'انقر نقطة البداية ثم نقطة النهاية لرسم خط داخلي.' : 'انقر الموضع المطلوب ثم أدخل الحرف أو الرمز.';
+        }
+        function clearShapeOverlays(){ shapeOverlayMarkup=[]; shapeFirstPoint=null; updateShapePreview(); }
+        function attachShapeEditor(){
+            const svg=document.querySelector('#shape-preview-box svg'); if(!svg)return;
+            svg.style.cursor=shapeEditMode?'crosshair':'default';
+            let movingOverlay=null, moveStart=null, movedOverlay=false;
+            svg.addEventListener('pointerdown', function(ev){
+                const target=ev.target.closest('[data-marmara-overlay]'); if(!target)return;
+                movingOverlay=target; moveStart={x:ev.clientX,y:ev.clientY,attrs:{}};
+                ['x','y','x1','y1','x2','y2'].forEach(a=>{if(target.hasAttribute(a))moveStart.attrs[a]=Number(target.getAttribute(a));});
+                target.setPointerCapture?.(ev.pointerId); ev.stopPropagation();
+            });
+            svg.addEventListener('pointermove', function(ev){
+                if(!movingOverlay||!moveStart)return;
+                const dx=(ev.clientX-moveStart.x)*svg.viewBox.baseVal.width/svg.getBoundingClientRect().width;
+                const dy=(ev.clientY-moveStart.y)*svg.viewBox.baseVal.height/svg.getBoundingClientRect().height;
+                Object.entries(moveStart.attrs).forEach(([a,v])=>targetAttr(a,v));
+                function targetAttr(a,v){ movingOverlay.setAttribute(a, v + (a.endsWith('x')||a==='x'?dx:dy)); }
+                movedOverlay=true; ev.stopPropagation();
+            });
+            svg.addEventListener('pointerup', function(ev){
+                if(movingOverlay){const idx=Number(movingOverlay.dataset.marmaraOverlay);shapeOverlayMarkup[idx]=movingOverlay.outerHTML;movingOverlay=null;moveStart=null;ev.stopPropagation();}
+            });
+            svg.addEventListener('click', function(ev){
+                if(movedOverlay){movedOverlay=false;return;}
+                if(!shapeEditMode)return;
+                const pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
+                const p=pt.matrixTransform(svg.getScreenCTM().inverse());
+                const ns='http://www.w3.org/2000/svg';
+                if(shapeEditMode==='line'){
+                    if(!shapeFirstPoint){shapeFirstPoint=p;return;}
+                    const line=document.createElementNS(ns,'line'); line.setAttribute('x1',shapeFirstPoint.x); line.setAttribute('y1',shapeFirstPoint.y); line.setAttribute('x2',p.x); line.setAttribute('y2',p.y); line.setAttribute('stroke',document.getElementById('shape-color').value); line.setAttribute('stroke-width','2');
+                    line.setAttribute('data-marmara-overlay',shapeOverlayMarkup.length); svg.appendChild(line); shapeOverlayMarkup.push(line.outerHTML); shapeFirstPoint=null;
+                } else if(shapeEditMode==='label'){
+                    const label=prompt('اكتب الحرف أو الرمز المطلوب:'); if(label){const t=document.createElementNS(ns,'text');t.setAttribute('x',p.x);t.setAttribute('y',p.y);t.setAttribute('font-size','12');t.setAttribute('font-weight','bold');t.setAttribute('fill','#1e293b');t.textContent=label;t.setAttribute('data-marmara-overlay',shapeOverlayMarkup.length);svg.appendChild(t);shapeOverlayMarkup.push(t.outerHTML);}
+                }
+            });
+        }
         function openShapesModal() {
+            shapeOverlayMarkup=[]; shapeEditMode=null; shapeFirstPoint=null;
             document.getElementById('shapes-modal').classList.remove('hidden');
+            const sz=document.getElementById('shape-size')?.value||130;
+            document.getElementById('shape-free-width').value=sz; document.getElementById('shape-free-height').value=sz; document.getElementById('shape-free-rotate').value=0;
             updateShapePreview();
         }
         function closeShapesModal() {
@@ -3304,6 +3547,14 @@ OUTPUT ONLY A VALID JSON matching this schema:
 
             const svg = generateShapeSVG(type, color, size, stroke, vText, sText, aText, showRt, showPl);
             document.getElementById('shape-preview-box').innerHTML = svg;
+            const previewSvg=document.querySelector('#shape-preview-box svg');
+            if(previewSvg){
+                const w=Math.min(600,Math.max(40,parseInt(document.getElementById('shape-free-width')?.value)||parseInt(size)));
+                const h=Math.min(600,Math.max(40,parseInt(document.getElementById('shape-free-height')?.value)||parseInt(size)));
+                const rot=parseInt(document.getElementById('shape-free-rotate')?.value)||0;
+                previewSvg.setAttribute('width',w); previewSvg.setAttribute('height',h); previewSvg.setAttribute('preserveAspectRatio','none'); previewSvg.style.transform=`rotate(${rot}deg)`; previewSvg.style.transformOrigin='center';
+                shapeOverlayMarkup.forEach(mark=>previewSvg.insertAdjacentHTML('beforeend',mark)); attachShapeEditor();
+            }
         }
 
         function insertShapeToQuestion() {
@@ -3318,7 +3569,12 @@ OUTPUT ONLY A VALID JSON matching this schema:
             const showRt = document.getElementById('shape-show-rightangle').checked;
             const showPl = document.getElementById('shape-show-parallel').checked;
 
-            const svg = generateShapeSVG(type, color, size, stroke, vText, sText, aText, showRt, showPl);
+            let svg = generateShapeSVG(type, color, size, stroke, vText, sText, aText, showRt, showPl);
+            if(shapeOverlayMarkup.length){ svg=svg.replace('</svg>', shapeOverlayMarkup.join('')+'</svg>'); }
+            const fw=Math.min(600,Math.max(40,parseInt(document.getElementById('shape-free-width')?.value)||parseInt(size)));
+            const fh=Math.min(600,Math.max(40,parseInt(document.getElementById('shape-free-height')?.value)||parseInt(size)));
+            const fr=parseInt(document.getElementById('shape-free-rotate')?.value)||0;
+            svg=svg.replace(`width="${size}" height="${size}"`, `width="${fw}" height="${fh}" preserveAspectRatio="none" style="transform:rotate(${fr}deg);transform-origin:center"`);
             const textEl = document.getElementById('modal-qtext');
             if (textEl) {
                 textEl.value += ` [shape]${svg}[/shape] `;
@@ -3500,11 +3756,55 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 return `<span class="shape-rendered-container">${svg}</span>`;
             });
 
-            html = html.replace(/\[img\]([\s\S]*?)\[\/img\]/g, (match, src) => {
-                return `<img src="${src}" class="img-rendered-container max-h-48 rounded border border-slate-200 shadow-sm" alt="سؤال">`;
-            });
 
+            // تنسيق لون كلمات محددة دون التأثير على بقية السؤال
+            html = html.replace(/\[color=(#[0-9a-fA-F]{3,8})\]([\s\S]*?)\[\/color\]/g, '<span style="color:$1">$2</span>');
+            // جداول قابلة للتعبئة: الخلايا مستقلة وقابلة للتحرير مباشرة.
+            html = html.replace(/\[table:(\d+):(\d+)\]([\s\S]*?)\[\/table\]/g, (m, rr, cc, body) => {
+                const rows = Math.min(20, Math.max(1, +rr)), cols = Math.min(12, Math.max(1, +cc));
+                const vals = body.split('|'); let k = 0;
+                let out = `<table data-adv-kind="table" data-rows="${rows}" data-cols="${cols}" class="w-full border-collapse my-2 text-center text-xs"><tbody>`;
+                for(let r=0;r<rows;r++){
+                    out += '<tr>';
+                    for(let c=0;c<cols;c++){
+                        const value = (vals[k++] || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                        out += `<td contenteditable="true" spellcheck="false" class="border border-slate-500 p-2 min-w-[45px] min-h-[34px] bg-white align-middle">${value}</td>`;
+                    }
+                    out += '</tr>';
+                }
+                return out+'</tbody></table>';
+            });
+            // سؤال توصيل: كل خانة قابلة للتحرير بشكل مستقل، دون تشغيل محرر السؤال عند النقر عليها.
+            html = html.replace(/\[match:(\d+):(\d+)\]([\s\S]*?)\[\/match\]/g, (m, aa, bb, body) => {
+                const a=Math.min(20,Math.max(1,+aa)), b=Math.min(20,Math.max(1,+bb));
+                const vals=body.split('|');
+                const safe = value => String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                let out=`<div data-adv-kind="match" data-a="${a}" data-b="${b}" class="my-3 grid grid-cols-2 gap-4 text-xs">`;
+                out+='<div class="min-w-0"><b class="block text-center mb-1">العمود (أ)</b>';
+                for(let i=0;i<a;i++) out+=`<div contenteditable="true" spellcheck="false" class="border border-slate-300 rounded p-2 min-h-[36px] mb-1 bg-white">${safe(vals[i]||'')}</div>`;
+                out+='</div><div class="min-w-0"><b class="block text-center mb-1">العمود (ب)</b>';
+                for(let i=0;i<b;i++) out+=`<div contenteditable="true" spellcheck="false" class="border border-slate-300 rounded p-2 min-h-[36px] mb-1 bg-white">${safe(vals[a+i]||'')}</div>`;
+                return out+'</div></div>';
+            });
+            // الصور: [img]قديم[/img] أو [img:العرض]قديم[/img]؛ العرض محفوظ بعد تغيير الحجم.
+            html = html.replace(/\[img(?::(\d+))?\]([\s\S]*?)\[\/img\](?:\[imgcaption\]([\s\S]*?)\[\/imgcaption\])?/g, (match, savedWidth, src, caption) => {
+                const width = Math.max(70, Math.min(1200, parseInt(savedWidth,10) || 240));
+                const safeCaption = String(caption || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                return `<div class="img-resize-wrapper" data-image-width="${width}" style="width:${width}px"><div class="img-resize-toolbar" contenteditable="false"><select class="img-layout-select" aria-label="ترتيب صور السؤال" title="ترتيب صور السؤال" onchange="setQuestionImageLayoutFromImage(this)"><option value="column">أسفل بعضها</option><option value="row">بجانب بعضها</option></select><button type="button" data-image-action="smaller" aria-label="تصغير الصورة">−</button><input type="range" data-image-action="range" min="70" max="900" step="10" value="${width}" aria-label="حجم الصورة"><button type="button" data-image-action="larger" aria-label="تكبير الصورة">+</button><output>${width}px</output></div><img src="${src}" class="img-rendered-container" alt="صورة السؤال"><div class="img-caption" contenteditable="true" spellcheck="false" data-placeholder="اكتب نصاً أسفل الصورة...">${safeCaption}</div><span class="img-resize-handle" role="button" aria-label="تغيير حجم الصورة" title="اسحب لتكبير أو تصغير الصورة"></span></div>`;
+            });
             return html;
+        }
+
+        function setQuestionImageLayoutFromImage(select) {
+            const item = select.closest('.question-item');
+            if (!item) return;
+            const pageIndex = Number(item.dataset.page), questionIndex = Number(item.dataset.question);
+            const question = state.pages?.[pageIndex]?.questions?.[questionIndex];
+            if (!question) return;
+            question.imagesLayout = select.value === 'row' ? 'row' : 'column';
+            item.dataset.imagesLayout = question.imagesLayout;
+            item.querySelectorAll('.img-layout-select').forEach(other => { other.value = question.imagesLayout; });
+            saveLocalState();
         }
 
         function renderPages() {
@@ -3663,11 +3963,11 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     const qColorStyle = q.color ? `color: ${q.color};` : '';
 
                     questionsHtml += `
-                        <div class="question-item group" style="margin-bottom: ${state.layout.questionSpacing || 12}px;">
+                        <div class="question-item group" data-page="${pIdx}" data-question="${qIdx}" data-images-layout="${q.imagesLayout || 'column'}" style="margin-bottom: ${state.layout.questionSpacing || 12}px;">
                             <div class="flex items-start justify-between gap-1 relative z-30">
-                                <div class="font-bold leading-relaxed flex-1" style="${qColorStyle}">
+                                <div class="font-bold leading-relaxed flex-1" style="${qColorStyle} text-align:${qDir === 'ltr' ? 'left' : 'right'};">
                                     <span class="text-turquoise-800 cursor-pointer hover:underline" onclick="openQuestionModal(${pIdx}, ${qIdx})">${label}</span>
-                                    <span class="whitespace-pre-wrap">${parseQuestionContent(q.text)}</span>
+                                    <div class="whitespace-pre-wrap question-inline-edit" data-page="${pIdx}" data-question="${qIdx}" title="انقر على نص السؤال لتحريره مباشرة">${parseQuestionContent(q.text)}</div>
                                     ${marksText}
                                     ${typeSpecificHtml}
                                 </div>
@@ -3691,6 +3991,14 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 questionsHtml += `</div>`;
 
                 pageEl.innerHTML = headerHtml + questionsHtml;
+                pageEl.querySelectorAll('.question-item').forEach(questionEl => {
+                    const layout = questionEl.dataset.imagesLayout || 'column';
+                    questionEl.querySelectorAll('.img-layout-select').forEach(select => { select.value = layout; });
+                });
+                const pageDelete = document.createElement('button');
+                pageDelete.type = 'button'; pageDelete.className = 'no-print absolute top-2 left-2 z-[55] px-2 py-1 text-[10px] font-bold rounded bg-rose-50 text-rose-700 border border-rose-200';
+                pageDelete.textContent = 'حذف الصفحة'; pageDelete.title = 'حذف الصفحة بالكامل';
+                pageDelete.onclick = () => deleteExamPage(pIdx); pageEl.appendChild(pageDelete);
                 pageEl.appendChild(svgLayer);
                 wrapper.appendChild(pageEl);
             });
@@ -3961,6 +4269,177 @@ OUTPUT ONLY A VALID JSON matching this schema:
             renderPages(); // معالجة الصفحة وإعادة حفظها
             checkStandaloneMode();
         };
+
+        // =====================================================
+        // إضافات مرمرة الآمنة: توسعة فوق البنية الأصلية دون استبدالها
+        // =====================================================
+        const MarmaraAdvanced = {
+            insertAtCursor(text) {
+                const el=document.getElementById('modal-qtext');
+                const start = Number.isInteger(el.selectionStart) ? el.selectionStart : el.value.length;
+                const end = Number.isInteger(el.selectionEnd) ? el.selectionEnd : el.value.length;
+                const before = el.value.slice(0,start), after = el.value.slice(end);
+                const prefix = before && !before.endsWith('\n') ? '\n' : '';
+                const suffix = after && !after.startsWith('\n') ? '\n' : '';
+                el.setRangeText(prefix + text + suffix, start, end, 'end');
+                el.focus();
+            },
+            insertTable() {
+                const r=Math.min(20,Math.max(1,parseInt(document.getElementById('adv-table-rows').value)||3));
+                const c=Math.min(12,Math.max(1,parseInt(document.getElementById('adv-table-cols').value)||3));
+                this.insertAtCursor(`[table:${r}:${c}]${Array(r*c).fill('').join('|')}[/table]`);
+                showToast(`تم إدراج جدول ${r} صفوف × ${c} أعمدة`);
+            },
+            insertMatch() {
+                const a=Math.min(20,Math.max(1,parseInt(document.getElementById('adv-match-a').value)||3));
+                const b=Math.min(20,Math.max(1,parseInt(document.getElementById('adv-match-b').value)||3));
+                this.insertAtCursor(`[match:${a}:${b}]${Array(a+b).fill('').join('|')}[/match]`);
+                const details=document.querySelector('#advanced-question-tools details');
+                if(details) details.open=false;
+                showToast(`تم إدراج عمود (أ) بعدد ${a} عناصر وعمود (ب) بعدد ${b} عناصر`);
+            },
+            colorSelection() {
+                const el=document.getElementById('modal-qtext'); const start=el.selectionStart,end=el.selectionEnd;
+                if(start===end){showToast('حدد كلمة أو عبارة أولاً','error');return;}
+                const color=document.getElementById('adv-color').value, selected=el.value.slice(start,end);
+                el.setRangeText(`[color=${color}]${selected}[/color]`,start,end,'select'); el.focus();
+            },
+            resizeImages() {
+                const wrappers=[...document.querySelectorAll('.img-resize-wrapper')];
+                wrappers.forEach(wrapper=>{
+                    wrapper.classList.add('image-resize-active');
+                    const width=Math.round(wrapper.getBoundingClientRect().width || parseFloat(wrapper.dataset.imageWidth) || 240);
+                    const slider=wrapper.querySelector('[data-image-action="range"]');
+                    const output=wrapper.querySelector('output');
+                    if(slider) slider.value=String(width);
+                    if(output) output.textContent=width+'px';
+                });
+                if(!wrappers.length){showToast('أدرج صورة داخل أحد الأسئلة أولاً، ثم افتح تحجيم الصور','error');return;}
+                showToast('استخدم − و + أو حرّك شريط الحجم بجانب الصورة');
+            }
+        };
+        function deleteExamPage(index) {
+            if(!Array.isArray(state.pages) || state.pages.length<=1){showToast('يجب أن يبقى في الاختبار صفحة واحدة على الأقل','error');return;}
+            if(!confirm('هل تريد حذف هذه الصفحة بالكامل؟ لا يمكن التراجع عن الحذف.')) return;
+            state.pages.splice(index,1); renderPages(); showToast('تم حذف الصفحة بالكامل');
+        }
+        // تحرير مباشر بالنقر على نص السؤال؛ يحفظ النص في الحالة الأصلية.
+        document.addEventListener('click', function(e){
+            // لا تفتح محرر السؤال عند التعامل مع خلية جدول/توصيل أو مقبض الصورة.
+            if(e.target.closest('[data-adv-kind], .img-resize-wrapper, .img-resize-handle')) return;
+            const target=e.target.closest('.question-inline-edit'); if(!target || target.isContentEditable) return;
+            const p=Number(target.dataset.page), q=Number(target.dataset.question); const item=state.pages?.[p]?.questions?.[q]; if(!item)return;
+            const editor=document.createElement('textarea'); editor.value=item.text||''; editor.className='w-full min-h-[70px] border-2 border-turquoise-500 rounded p-2 text-sm bg-white';
+            target.replaceWith(editor); editor.focus();
+            const save=()=>{item.text=editor.value;renderPages();};
+            editor.addEventListener('blur',save,{once:true});
+            editor.addEventListener('keydown',ev=>{if(ev.key==='Escape'){renderPages();} if(ev.key==='Enter'&&(ev.ctrlKey||ev.metaKey)){editor.blur();}});
+        });
+        // مزامنة خلايا الجداول والتوصيل مع نص السؤال وحفظها فور مغادرة الخلية.
+        function syncAdvancedWidget(widget) {
+            const item=widget.closest('.question-item');
+            if(!item) return;
+            const p=Number(item.dataset.page), q=Number(item.dataset.question);
+            const question=state.pages?.[p]?.questions?.[q];
+            if(!question) return;
+            const safeText = el => (el.innerText || el.textContent || '').replace(/\r?\n/g,' ').replace(/\|/g,'／').trim();
+            let encoded='', re;
+            if(widget.dataset.advKind==='table'){
+                const vals=[...widget.querySelectorAll('td')].map(safeText);
+                encoded=`[table:${widget.dataset.rows}:${widget.dataset.cols}]${vals.join('|')}[/table]`;
+                re=/\[table:\d+:\d+\][\s\S]*?\[\/table\]/;
+            } else if(widget.dataset.advKind==='match'){
+                const vals=[...widget.querySelectorAll('[contenteditable="true"]')].map(safeText);
+                encoded=`[match:${widget.dataset.a}:${widget.dataset.b}]${vals.join('|')}[/match]`;
+                re=/\[match:\d+:\d+\][\s\S]*?\[\/match\]/;
+            } else return;
+            question.text=re.test(question.text) ? question.text.replace(re,encoded) : question.text+'\n'+encoded;
+            saveLocalState();
+        }
+        document.addEventListener('focusout', function(e){
+            const cell=e.target.closest('[contenteditable="true"]');
+            if(!cell) return;
+            const widget=cell.closest('[data-adv-kind]');
+            if(widget) syncAdvancedWidget(widget);
+        });
+
+        // حفظ النص المكتوب أسفل كل صورة ضمن نص السؤال نفسه.
+        document.addEventListener('focusout', function(e){
+            const caption=e.target.closest('.img-caption');
+            if(!caption) return;
+            const item=caption.closest('.question-item');
+            if(!item) return;
+            const p=Number(item.dataset.page), q=Number(item.dataset.question);
+            const question=state.pages?.[p]?.questions?.[q];
+            if(!question) return;
+            const wrappers=[...item.querySelectorAll('.img-resize-wrapper')];
+            const captions=wrappers.map(w => {
+                const el=w.querySelector('.img-caption');
+                return el ? (el.innerText || el.textContent || '').trim() : '';
+            });
+            let index=0;
+            question.text=question.text.replace(/(\\[img(?::\\d+)?\\][\\s\\S]*?\\[\\/img\\])(?:\\[imgcaption\\][\\s\\S]*?\\[\\/imgcaption\\])?/g, (whole, imageToken) => {
+                const value=captions[index++] || '';
+                return imageToken + (value ? `[imgcaption]${value}[/imgcaption]` : '');
+            });
+            saveLocalState();
+        });
+
+        // تحجيم الصور بأزرار واضحة وشريط لمس، مع حفظ الحجم مباشرة.
+        function getImageMaxWidth(wrapper) {
+            const page=wrapper.closest('.a4-page');
+            const question=wrapper.closest('.question-item');
+            const available=(question && question.clientWidth) || (page && page.clientWidth-80) || 700;
+            return Math.max(100,Math.min(1100,available));
+        }
+        function applyImageWidth(wrapper, requestedWidth, persist=true) {
+            if(!wrapper) return;
+            const max=getImageMaxWidth(wrapper);
+            const width=Math.max(70,Math.min(max,Number(requestedWidth)||240));
+            wrapper.style.width=Math.round(width)+'px';
+            wrapper.dataset.imageWidth=String(Math.round(width));
+            const slider=wrapper.querySelector('[data-image-action="range"]');
+            const output=wrapper.querySelector('output');
+            if(slider){slider.max=String(Math.max(900,Math.round(max)));slider.value=String(Math.round(width));}
+            if(output) output.textContent=Math.round(width)+'px';
+            if(persist) persistImageWidth(wrapper);
+        }
+        document.addEventListener('click',function(e){
+            const button=e.target.closest('[data-image-action="smaller"], [data-image-action="larger"]');
+            if(!button) return;
+            e.preventDefault(); e.stopPropagation();
+            const wrapper=button.closest('.img-resize-wrapper');
+            if(!wrapper) return;
+            const current=wrapper.getBoundingClientRect().width || parseFloat(wrapper.dataset.imageWidth) || 240;
+            const step=Math.max(20,Math.round(current*0.12));
+            applyImageWidth(wrapper,current+(button.dataset.imageAction==='larger'?step:-step),true);
+        },true);
+        document.addEventListener('input',function(e){
+            if(!e.target.matches('[data-image-action="range"]')) return;
+            e.stopPropagation();
+            const wrapper=e.target.closest('.img-resize-wrapper');
+            if(wrapper) applyImageWidth(wrapper,e.target.value,false);
+        },true);
+        document.addEventListener('change',function(e){
+            if(!e.target.matches('[data-image-action="range"]')) return;
+            const wrapper=e.target.closest('.img-resize-wrapper');
+            if(wrapper) persistImageWidth(wrapper);
+        },true);
+        function persistImageWidth(wrapper){
+            const item=wrapper.closest('.question-item');
+            if(!item) return;
+            const p=Number(item.dataset.page), q=Number(item.dataset.question);
+            const question=state.pages?.[p]?.questions?.[q];
+            if(!question) return;
+            const wrappers=[...item.querySelectorAll('.img-resize-wrapper')];
+            const widths=wrappers.map(w=>Math.max(70,Math.round(parseFloat(w.style.width)||w.getBoundingClientRect().width||240)));
+            let index=0;
+            question.text=question.text.replace(/\[img(?::\d+)?\]([\s\S]*?)\[\/img\]/g,(whole,src)=>{
+                const width=widths[index++] || 240;
+                return `[img:${width}]${src}[/img]`;
+            });
+            saveLocalState();
+        }
     </script>
 </body>
 </html>

@@ -106,12 +106,27 @@
             overflow: visible;
         }
 
-        /* Responsive scaling on small screens */
+        /* Keep the exam sheet at its real A4 desktop dimensions on every screen.
+           On narrow screens, the existing preview container scrolls horizontally;
+           the page content is never reflowed into a mobile column layout. */
         @media (max-width: 850px) {
+            #pages-wrapper {
+                width: 210mm !important;
+                max-width: none !important;
+                min-width: 210mm !important;
+                flex: 0 0 210mm !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
             .a4-page {
-                width: 100%;
-                min-height: auto;
-                padding: 15px;
+                width: 210mm !important;
+                min-width: 210mm !important;
+                min-height: 297mm !important;
+                padding-top: var(--exam-margin-top) !important;
+                padding-bottom: var(--exam-margin-bottom) !important;
+                padding-right: var(--exam-margin-right) !important;
+                padding-left: var(--exam-margin-left) !important;
+                flex-shrink: 0 !important;
             }
         }
 
@@ -168,6 +183,21 @@
             height: auto;
             overflow: visible;
         }
+
+        /* Freely positioned exam objects: editing handles never appear in print. */
+        .exam-free-object { position:absolute; z-index:55; box-sizing:border-box; touch-action:none; user-select:none; }
+        .exam-free-object.selected { outline:1.5px dashed #0d9488; outline-offset:3px; }
+        .exam-free-object svg { display:block; width:100%; height:100%; overflow:visible; }
+        .exam-free-object-controls { position:absolute; top:-25px; right:0; display:flex; gap:3px; }
+        .exam-free-object-controls button { background:#0f766e; color:#fff; border-radius:5px; padding:2px 6px; font-size:10px; line-height:1.5; }
+        .exam-free-object .resize-handle { position:absolute; width:13px; height:13px; bottom:-7px; left:-7px; border:2px solid #0d9488; background:#fff; border-radius:50%; cursor:nwse-resize; touch-action:none; }
+        .question-free-object { position:absolute; z-index:45; box-sizing:border-box; touch-action:none; user-select:none; }
+        .question-free-object.selected { outline:1.5px dashed #0d9488; outline-offset:3px; }
+        .question-free-object svg { display:block; width:100%; height:100%; overflow:visible; }
+        .question-free-object .resize-handle { position:absolute; width:13px; height:13px; bottom:-7px; left:-7px; border:2px solid #0d9488; background:#fff; border-radius:50%; cursor:nwse-resize; touch-action:none; }
+        @media print { .question-free-object.selected { outline:none !important; } .question-free-object .resize-handle,.question-free-object .exam-free-object-controls { display:none !important; } }
+
+        @media print { .exam-free-object.selected { outline:none !important; } .exam-free-object-controls,.exam-free-object .resize-handle { display:none !important; } }
 
         .img-rendered-container {
             display: block;
@@ -401,6 +431,30 @@
 
         #toast {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* معاينة الهاتف: تكبير تخطيطي عبر zoom مع تمرير أصلي، دون قص الورقة أو نقلها بتحويلات GPU */
+        @media (max-width: 850px) {
+            #paper-view-area {
+                overflow: auto !important;
+                position: relative;
+                align-items: flex-start !important;
+                direction: ltr;
+                touch-action: pan-x pan-y;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
+            #pages-wrapper {
+                transform: none !important;
+                transform-origin: top left !important;
+                will-change: auto !important;
+                flex: 0 0 210mm !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+        }
+        @media print {
+            #paper-view-area { overflow: visible !important; }
+            #pages-wrapper { transform: none !important; zoom: 1 !important; margin-bottom: 0 !important; }
         }
     </style>
 </head>
@@ -766,7 +820,7 @@
         </div>
 
         <!-- Paper Preview Area -->
-        <div class="flex-1 flex flex-col items-center overflow-x-auto pb-10">
+        <div id="paper-view-area" class="flex-1 flex flex-col items-center overflow-auto pb-10" style="min-width:0; touch-action:pan-x pan-y;">
             <div id="pages-wrapper" class="w-full max-w-[210mm]">
                 <!-- Dynamic Pages rendered here -->
             </div>
@@ -975,6 +1029,12 @@
                     <textarea id="modal-qtext" rows="3" class="w-full p-2.5 border border-slate-300 rounded text-slate-800 outline-none leading-relaxed focus:ring-1 focus:ring-turquoise-500 font-mono text-xs"></textarea>
                     <div id="advanced-question-tools" class="mt-2 p-2 border border-turquoise-200 rounded-lg bg-turquoise-50/40 space-y-2">
                         <div class="font-bold text-slate-700">إضافات مباشرة إلى السؤال</div>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <button type="button" onclick="addQuestionShape('circle')" class="px-3 py-1.5 bg-white border border-slate-300 rounded font-bold text-slate-700 hover:border-turquoise-500">＋ دائرة</button>
+                            <button type="button" onclick="addQuestionShape('rectangle')" class="px-3 py-1.5 bg-white border border-slate-300 rounded font-bold text-slate-700 hover:border-turquoise-500">＋ مستطيل</button>
+                            <span class="text-[10px] text-slate-500">يمكن تحريك الشكل وتغيير حجمه بعد إغلاق نافذة التعديل.</span>
+                        </div>
+
                         <div class="flex flex-wrap gap-2 items-end">
                             <label>صفوف الجدول <input id="adv-table-rows" type="number" min="1" max="20" value="3" class="w-14 p-1 border rounded"></label>
                             <label>أعمدة الجدول <input id="adv-table-cols" type="number" min="1" max="12" value="3" class="w-14 p-1 border rounded"></label>
@@ -1401,10 +1461,21 @@
             </div>
 
             <div class="space-y-3 text-xs">
+                <div class="flex items-center gap-2">
+                    <label for="shape-target-page" class="font-bold text-slate-700 whitespace-nowrap">صفحة الإدراج:</label>
+                    <select id="shape-target-page" class="flex-1 p-2 border border-slate-300 rounded font-bold text-slate-800"></select>
+                </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div>
                         <label class="block font-bold text-slate-700 mb-1">نوع الشكل:</label>
                         <select id="shape-type" onchange="updateShapePreview()" class="w-full p-2 border border-slate-300 rounded font-bold text-slate-800 outline-none">
+                            <option value="gt">أكبر من ( &gt; )</option>
+                            <option value="lt">أصغر من ( &lt; )</option>
+                            <option value="eq">يساوي ( = )</option>
+                            <option value="neq">لا يساوي ( ≠ )</option>
+                            <option value="gte">أكبر أو يساوي ( ≥ )</option>
+                            <option value="lte">أصغر أو يساوي ( ≤ )</option>
+                            <option value="plusminus">زائد أو ناقص ( ± )</option>
                             <option value="triangle">مثلث</option>
                             <option value="square">مربع</option>
                             <option value="rectangle">مستطيل</option>
@@ -1483,7 +1554,8 @@
 
             <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <button onclick="closeShapesModal()" class="px-4 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-200">إغلاق</button>
-                <button onclick="insertShapeToQuestion()" class="px-4 py-1.5 bg-turquoise-600 hover:bg-turquoise-700 text-white rounded-lg text-xs font-bold shadow">إدراج الشكل والهندسة</button>
+                <button onclick="insertShapeToQuestion()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">إضافة مباشرة إلى السؤال</button>
+                <button onclick="insertFreeShapeOnPage()" class="px-4 py-1.5 bg-turquoise-600 hover:bg-turquoise-700 text-white rounded-lg text-xs font-bold shadow">إدراج حر على الورقة</button>
             </div>
         </div>
     </div>
@@ -3339,6 +3411,11 @@ OUTPUT ONLY A VALID JSON matching this schema:
         }
         function openShapesModal() {
             shapeOverlayMarkup=[]; shapeEditMode=null; shapeFirstPoint=null;
+            const targetPage = document.getElementById('shape-target-page');
+            if (targetPage) {
+                targetPage.innerHTML = state.pages.map((page, i) => `<option value="${i}">الصفحة ${i+1}</option>`).join('');
+                targetPage.value = String(Math.max(0, state.pages.length - 1));
+            }
             document.getElementById('shapes-modal').classList.remove('hidden');
             const sz=document.getElementById('shape-size')?.value||130;
             document.getElementById('shape-free-width').value=sz; document.getElementById('shape-free-height').value=sz; document.getElementById('shape-free-rotate').value=0;
@@ -3362,6 +3439,11 @@ OUTPUT ONLY A VALID JSON matching this schema:
             const lblColor = '#1e293b';
 
             switch (type) {
+                case 'gt': case 'lt': case 'eq': case 'neq': case 'gte': case 'lte': case 'plusminus': {
+                    const symbols = {gt:'>', lt:'<', eq:'=', neq:'≠', gte:'≥', lte:'≤', plusminus:'±'};
+                    mainShapeSvg = `<text x="${half}" y="${half + s*0.22}" text-anchor="middle" font-family="Arial, sans-serif" font-size="${s*0.72}" font-weight="700" fill="${color}">${symbols[type]}</text>`;
+                    break;
+                }
                 case 'triangle': {
                     const ptA = { x: half, y: 15 };
                     const ptB = { x: s - 15, y: s - 25 };
@@ -3557,30 +3639,176 @@ OUTPUT ONLY A VALID JSON matching this schema:
             }
         }
 
-        function insertShapeToQuestion() {
+        function insertFreeShapeOnPage() {
             const type = document.getElementById('shape-type').value;
             const color = document.getElementById('shape-color').value;
-            const size = document.getElementById('shape-size').value;
-            const stroke = 2;
-
+            const size = parseInt(document.getElementById('shape-size').value, 10) || 130;
             const vText = document.getElementById('shape-label-vertices').value;
             const sText = document.getElementById('shape-label-sides').value;
             const aText = document.getElementById('shape-label-angle').value;
             const showRt = document.getElementById('shape-show-rightangle').checked;
             const showPl = document.getElementById('shape-show-parallel').checked;
-
-            let svg = generateShapeSVG(type, color, size, stroke, vText, sText, aText, showRt, showPl);
-            if(shapeOverlayMarkup.length){ svg=svg.replace('</svg>', shapeOverlayMarkup.join('')+'</svg>'); }
-            const fw=Math.min(600,Math.max(40,parseInt(document.getElementById('shape-free-width')?.value)||parseInt(size)));
-            const fh=Math.min(600,Math.max(40,parseInt(document.getElementById('shape-free-height')?.value)||parseInt(size)));
-            const fr=parseInt(document.getElementById('shape-free-rotate')?.value)||0;
-            svg=svg.replace(`width="${size}" height="${size}"`, `width="${fw}" height="${fh}" preserveAspectRatio="none" style="transform:rotate(${fr}deg);transform-origin:center"`);
-            const textEl = document.getElementById('modal-qtext');
-            if (textEl) {
-                textEl.value += ` [shape]${svg}[/shape] `;
-            }
+            const w = Math.min(600, Math.max(30, parseInt(document.getElementById('shape-free-width').value,10) || size));
+            const h = Math.min(600, Math.max(30, parseInt(document.getElementById('shape-free-height').value,10) || size));
+            const rotate = parseInt(document.getElementById('shape-free-rotate').value,10) || 0;
+            const svg = generateShapeSVG(type, color, size, 2, vText, sText, aText, showRt, showPl);
+            const pageIndex = Math.max(0, Math.min(state.pages.length - 1, parseInt(document.getElementById('shape-target-page')?.value,10) || 0));
+            const page = state.pages[pageIndex];
+            if (!page.elements) page.elements = [];
+            page.elements.push({type, svg, x:250, y:260, w, h, rotate});
             closeShapesModal();
-            showToast('تم إدراج الشكل الهندسي والتسميات بنجاح');
+            renderPages();
+            showToast('تم إدراج العنصر. اسحبه إلى المكان المطلوب وغيّر حجمه من الزاوية.');
+        }
+
+        function attachFreeObjectControls(obj, pageIndex) {
+            const page = state.pages[pageIndex];
+            const idx = Number(obj.dataset.elementIndex);
+            let gesture = null;
+            const persist = () => { saveLocalState(); };
+            obj.addEventListener('pointerdown', (ev) => {
+                if (ev.target.closest('button')) return;
+                const isResize = ev.target.classList.contains('resize-handle');
+                gesture = { mode: isResize ? 'resize' : 'move', sx:ev.clientX, sy:ev.clientY,
+                    x:parseFloat(obj.style.left)||0, y:parseFloat(obj.style.top)||0,
+                    w:obj.offsetWidth, h:obj.offsetHeight };
+                obj.classList.add('selected');
+                try { obj.setPointerCapture(ev.pointerId); } catch(_) {}
+                ev.preventDefault(); ev.stopPropagation();
+            });
+            obj.addEventListener('pointermove', (ev) => {
+                if (!gesture) return;
+                const scale = obj.closest('.a4-page').getBoundingClientRect().width / obj.closest('.a4-page').offsetWidth || 1;
+                const dx = (ev.clientX-gesture.sx)/scale, dy=(ev.clientY-gesture.sy)/scale;
+                if (gesture.mode==='move') {
+                    obj.style.left = `${Math.max(0, Math.min(obj.closest('.a4-page').clientWidth-20, gesture.x+dx))}px`;
+                    obj.style.top = `${Math.max(0, Math.min(obj.closest('.a4-page').clientHeight-20, gesture.y+dy))}px`;
+                } else {
+                    const nextW = Math.max(30, Math.min(600, gesture.w-dx));
+                    const nextH = Math.max(30, Math.min(600, gesture.h+dy));
+                    if (q.elements[idx]?.type === 'circle') {
+                        const diameter = Math.max(30, Math.min(600, Math.max(nextW, nextH)));
+                        obj.style.width = `${diameter}px`;
+                        obj.style.height = `${diameter}px`;
+                    } else {
+                        obj.style.width = `${nextW}px`;
+                        obj.style.height = `${nextH}px`;
+                    }
+                }
+                ev.preventDefault(); ev.stopPropagation();
+            });
+            const finish = (ev) => {
+                if (!gesture) return;
+                page.elements[idx].x = parseFloat(obj.style.left)||0;
+                page.elements[idx].y = parseFloat(obj.style.top)||0;
+                page.elements[idx].w = obj.offsetWidth;
+                page.elements[idx].h = obj.offsetHeight;
+                gesture = null; persist(); ev.stopPropagation();
+            };
+            obj.addEventListener('pointerup', finish);
+            obj.addEventListener('pointercancel', finish);
+            obj.querySelectorAll('[data-action]').forEach(btn => btn.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                if (btn.dataset.action==='delete' && confirm('هل تريد حذف هذا الشكل من ورقة الأسئلة؟')) {
+                    page.elements.splice(idx,1); renderPages(); showToast('تم حذف الشكل');
+                } else if (btn.dataset.action==='front') {
+                    obj.classList.toggle('selected');
+                }
+            }));
+        }
+
+
+        function addQuestionShape(type, fromModal = false) {
+            if (!editingTarget || !state.pages?.[editingTarget.pIdx]?.questions?.[editingTarget.qIdx]) {
+                showToast('افتح تعديل السؤال أولاً ثم أضف الشكل.');
+                return;
+            }
+            const color = fromModal ? document.getElementById('shape-color').value : '#0f172a';
+            const size = fromModal ? (parseInt(document.getElementById('shape-size').value, 10) || 130) : 100;
+            const width = fromModal ? Math.min(600, Math.max(30, parseInt(document.getElementById('shape-free-width').value,10) || size)) : (type === 'circle' ? 82 : 150);
+            const height = fromModal ? Math.min(600, Math.max(30, parseInt(document.getElementById('shape-free-height').value,10) || size)) : (type === 'circle' ? 82 : 82);
+            const rotate = fromModal ? (parseInt(document.getElementById('shape-free-rotate').value,10) || 0) : 0;
+            const vText = fromModal ? document.getElementById('shape-label-vertices').value : '';
+            const sText = fromModal ? document.getElementById('shape-label-sides').value : '';
+            const aText = fromModal ? document.getElementById('shape-label-angle').value : '';
+            const showRt = fromModal ? document.getElementById('shape-show-rightangle').checked : false;
+            const showPl = fromModal ? document.getElementById('shape-show-parallel').checked : false;
+            // Circle and rectangle are intentionally plain outlines:
+            // no center point, radius line, vertex labels, side labels, angle marks or decorations.
+            let svg;
+            if (type === 'circle') {
+                const d = Math.min(width, height);
+                svg = `<svg width="${d}" height="${d}" viewBox="0 0 ${d} ${d}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"><circle cx="${d/2}" cy="${d/2}" r="${Math.max(2, d/2-2)}" fill="none" stroke="${color}" stroke-width="2"/></svg>`;
+            } else if (type === 'rectangle') {
+                svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="${Math.max(1,width-4)}" height="${Math.max(1,height-4)}" fill="none" stroke="${color}" stroke-width="2"/></svg>`;
+            } else {
+                svg = generateShapeSVG(type, color, size, 2, vText, sText, aText, showRt, showPl);
+            }
+            const q = state.pages[editingTarget.pIdx].questions[editingTarget.qIdx];
+            if (!Array.isArray(q.elements)) q.elements = [];
+            q.elements.push({ type, svg, x: 24, y: 42, w: width, h: height, rotate });
+            saveLocalState();
+            renderPages();
+            showToast('أُضيف الشكل إلى السؤال. أغلق نافذة التعديل لتحريكه وتغيير حجمه.');
+        }
+
+        function attachQuestionObjectControls(obj, pageIndex, questionIndex) {
+            const q = state.pages[pageIndex].questions[questionIndex];
+            const idx = Number(obj.dataset.elementIndex);
+            let gesture = null;
+            obj.addEventListener('pointerdown', (ev) => {
+                if (ev.target.closest('button')) return;
+                const isResize = ev.target.classList.contains('resize-handle');
+                gesture = { mode: isResize ? 'resize' : 'move', sx:ev.clientX, sy:ev.clientY,
+                    x:parseFloat(obj.style.left)||0, y:parseFloat(obj.style.top)||0,
+                    w:obj.offsetWidth, h:obj.offsetHeight };
+                obj.classList.add('selected');
+                try { obj.setPointerCapture(ev.pointerId); } catch(_) {}
+                ev.preventDefault(); ev.stopPropagation();
+            });
+            obj.addEventListener('pointermove', (ev) => {
+                if (!gesture) return;
+                const host = obj.closest('.question-item');
+                const scale = host.getBoundingClientRect().width / host.offsetWidth || 1;
+                const dx = (ev.clientX-gesture.sx)/scale, dy=(ev.clientY-gesture.sy)/scale;
+                if (gesture.mode === 'move') {
+                    obj.style.left = `${Math.max(0, Math.min(host.clientWidth-20, gesture.x+dx))}px`;
+                    obj.style.top = `${Math.max(0, gesture.y+dy)}px`;
+                } else {
+                    obj.style.width = `${Math.max(30, Math.min(600, gesture.w-dx))}px`;
+                    obj.style.height = `${Math.max(30, Math.min(600, gesture.h+dy))}px`;
+                }
+                ev.preventDefault(); ev.stopPropagation();
+            });
+            const finish = (ev) => {
+                if (!gesture) return;
+                q.elements[idx].x = parseFloat(obj.style.left)||0;
+                q.elements[idx].y = parseFloat(obj.style.top)||0;
+                q.elements[idx].w = obj.offsetWidth;
+                q.elements[idx].h = obj.offsetHeight;
+                gesture = null;
+                saveLocalState();
+                ev.stopPropagation();
+            };
+            obj.addEventListener('pointerup', finish);
+            obj.addEventListener('pointercancel', finish);
+            obj.querySelectorAll('[data-action]').forEach(btn => btn.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                if (btn.dataset.action === 'delete' && confirm('هل تريد حذف هذا الشكل من السؤال؟')) {
+                    q.elements.splice(idx, 1);
+                    saveLocalState();
+                    renderPages();
+                    showToast('تم حذف الشكل من السؤال');
+                } else if (btn.dataset.action === 'front') {
+                    obj.classList.toggle('selected');
+                }
+            }));
+        }
+
+        function insertShapeToQuestion() {
+            const type = document.getElementById('shape-type').value;
+            addQuestionShape(type, true);
+            closeShapesModal();
         }
 
         function triggerQuestionImageUpload() {
@@ -3614,7 +3842,10 @@ OUTPUT ONLY A VALID JSON matching this schema:
         }
 
         function deleteQuestion(pIdx, qIdx) {
-            state.pages[pIdx].questions.splice(qIdx, 1);
+            const page = state.pages && state.pages[pIdx];
+            if (!page || !Array.isArray(page.questions) || !page.questions[qIdx]) return;
+            if (!confirm('هل تريد حذف هذا السؤال المحدد؟ لا يمكن التراجع عن الحذف.')) return;
+            page.questions.splice(qIdx, 1);
             renderPages();
             showToast('تم حذف السؤال');
         }
@@ -3922,8 +4153,8 @@ OUTPUT ONLY A VALID JSON matching this schema:
                         q.verses.forEach((v) => {
                             poemHtml += `
                                 <div class="grid grid-cols-2 gap-6 text-xs font-bold leading-relaxed border-b border-dotted border-amber-200/80 pb-1.5 last:border-0 text-slate-900">
-                                    <div class="${qDir === 'ltr' ? 'text-left pl-1' : 'text-right pr-1'} whitespace-pre-wrap">${parseQuestionContent(v.sadr)}</div>
-                                    <div class="${qDir === 'ltr' ? 'text-right pr-1' : 'text-left pl-1'} whitespace-pre-wrap">${parseQuestionContent(v.aja)}</div>
+                                    <div contenteditable="true" spellcheck="false" data-poem-field="sadr" data-verse="${q.verses.indexOf(v)}" class="poem-inline-edit ${qDir === 'ltr' ? 'text-left pl-1' : 'text-right pr-1'} whitespace-pre-wrap outline-none" title="انقر لتحرير الصدر">${parseQuestionContent(v.sadr)}</div>
+                                    <div contenteditable="true" spellcheck="false" data-poem-field="aja" data-verse="${q.verses.indexOf(v)}" class="poem-inline-edit ${qDir === 'ltr' ? 'text-right pr-1' : 'text-left pl-1'} whitespace-pre-wrap outline-none" title="انقر لتحرير العجز">${parseQuestionContent(v.aja)}</div>
                                 </div>
                             `;
                         });
@@ -3966,9 +4197,11 @@ OUTPUT ONLY A VALID JSON matching this schema:
                         <div class="question-item group" data-page="${pIdx}" data-question="${qIdx}" data-images-layout="${q.imagesLayout || 'column'}" style="margin-bottom: ${state.layout.questionSpacing || 12}px;">
                             <div class="flex items-start justify-between gap-1 relative z-30">
                                 <div class="font-bold leading-relaxed flex-1" style="${qColorStyle} text-align:${qDir === 'ltr' ? 'left' : 'right'};">
-                                    <span class="text-turquoise-800 cursor-pointer hover:underline" onclick="openQuestionModal(${pIdx}, ${qIdx})">${label}</span>
+                                    <span class="inline-flex items-center gap-1 flex-wrap">
+                                        <span class="text-turquoise-800 cursor-pointer hover:underline" onclick="openQuestionModal(${pIdx}, ${qIdx})">${label}</span>
+                                        ${marksText}
+                                    </span>
                                     <div class="whitespace-pre-wrap question-inline-edit" data-page="${pIdx}" data-question="${qIdx}" title="انقر على نص السؤال لتحريره مباشرة">${parseQuestionContent(q.text)}</div>
-                                    ${marksText}
                                     ${typeSpecificHtml}
                                 </div>
 
@@ -3995,11 +4228,42 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     const layout = questionEl.dataset.imagesLayout || 'column';
                     questionEl.querySelectorAll('.img-layout-select').forEach(select => { select.value = layout; });
                 });
+                page.questions.forEach((question, questionIndex) => {
+                    (question.elements || []).forEach((item, itemIndex) => {
+                        const questionEl = pageEl.querySelector(`.question-item[data-question="${questionIndex}"]`);
+                        if (!questionEl) return;
+                        const obj = document.createElement('div');
+                        obj.className = 'question-free-object';
+                        obj.dataset.elementIndex = itemIndex;
+                        obj.style.left = `${item.x ?? 24}px`;
+                        obj.style.top = `${item.y ?? 42}px`;
+                        obj.style.width = `${item.w ?? 100}px`;
+                        obj.style.height = `${item.h ?? 72}px`;
+                        obj.style.transform = `rotate(${item.rotate || 0}deg)`;
+                        obj.innerHTML = `<div class="exam-free-object-controls no-print"><button type="button" data-action="front" title="تحديد">تحديد</button><button type="button" data-action="delete" title="حذف">حذف</button></div>${item.svg || ''}<span class="resize-handle no-print" title="تغيير الحجم"></span>`;
+                        attachQuestionObjectControls(obj, pIdx, questionIndex);
+                        questionEl.appendChild(obj);
+                    });
+                });
                 const pageDelete = document.createElement('button');
                 pageDelete.type = 'button'; pageDelete.className = 'no-print absolute top-2 left-2 z-[55] px-2 py-1 text-[10px] font-bold rounded bg-rose-50 text-rose-700 border border-rose-200';
                 pageDelete.textContent = 'حذف الصفحة'; pageDelete.title = 'حذف الصفحة بالكامل';
                 pageDelete.onclick = () => deleteExamPage(pIdx); pageEl.appendChild(pageDelete);
                 pageEl.appendChild(svgLayer);
+                // Persistent, freely movable shapes and comparison symbols.
+                (page.elements || []).forEach((item, itemIndex) => {
+                    const obj = document.createElement('div');
+                    obj.className = 'exam-free-object';
+                    obj.dataset.elementIndex = itemIndex;
+                    obj.style.left = `${item.x ?? 250}px`;
+                    obj.style.top = `${item.y ?? 260}px`;
+                    obj.style.width = `${item.w ?? 130}px`;
+                    obj.style.height = `${item.h ?? 130}px`;
+                    obj.style.transform = `rotate(${item.rotate || 0}deg)`;
+                    obj.innerHTML = `<div class="exam-free-object-controls no-print"><button type="button" data-action="front" title="تحديد">تحديد</button><button type="button" data-action="delete" title="حذف">حذف</button></div>${item.svg || ''}<span class="resize-handle no-print" title="تغيير الحجم"></span>`;
+                    attachFreeObjectControls(obj, pIdx);
+                    pageEl.appendChild(obj);
+                });
                 wrapper.appendChild(pageEl);
             });
 
@@ -4050,7 +4314,10 @@ OUTPUT ONLY A VALID JSON matching this schema:
             noPrintNodes.forEach(n => n.remove());
 
             htmlContent += clone.innerHTML;
-            htmlContent += `</body></html>`;
+            htmlContent += `
+
+
+</body></html>`;
 
             const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
             const url = URL.createObjectURL(blob);
@@ -4323,6 +4590,88 @@ OUTPUT ONLY A VALID JSON matching this schema:
             if(!confirm('هل تريد حذف هذه الصفحة بالكامل؟ لا يمكن التراجع عن الحذف.')) return;
             state.pages.splice(index,1); renderPages(); showToast('تم حذف الصفحة بالكامل');
         }
+        // معاينة A4 على الهاتف: CSS zoom يحافظ على تدفق الصفحة والتمرير الأصلي.
+        // لا نحرّك كتلة الصفحات بـ transform ولا نعترض سحب الإصبع الواحد.
+        (function initMobilePaperViewport() {
+            const viewport = document.getElementById('paper-view-area');
+            const wrapper = document.getElementById('pages-wrapper');
+            if (!viewport || !wrapper) return;
+            const mobileQuery = window.matchMedia('(max-width: 850px)');
+            let scale = 1, minScale = 1, pinchStart = null, fitFrame = 0;
+
+            function getBaseWidth() {
+                const oldZoom = wrapper.style.zoom;
+                wrapper.style.zoom = '1';
+                const width = wrapper.offsetWidth || wrapper.scrollWidth || 794;
+                wrapper.style.zoom = oldZoom;
+                return width;
+            }
+            function fitToWidth() {
+                if (!mobileQuery.matches) {
+                    wrapper.style.zoom = '';
+                    scale = 1;
+                    return;
+                }
+                const baseWidth = getBaseWidth();
+                minScale = Math.min(1, viewport.clientWidth / Math.max(1, baseWidth));
+                scale = minScale;
+                wrapper.style.zoom = String(scale);
+                viewport.scrollLeft = 0;
+                viewport.scrollTop = 0;
+            }
+            function scheduleFit() {
+                if (fitFrame) cancelAnimationFrame(fitFrame);
+                fitFrame = requestAnimationFrame(() => {
+                    fitFrame = 0;
+                    fitToWidth();
+                });
+            }
+            function touchDistance(a, b) {
+                return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+            }
+            viewport.addEventListener('touchstart', function(e) {
+                if (!mobileQuery.matches || e.touches.length !== 2) {
+                    pinchStart = null;
+                    return;
+                }
+                const rect = viewport.getBoundingClientRect();
+                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+                pinchStart = {
+                    distance: touchDistance(e.touches[0], e.touches[1]),
+                    scale,
+                    contentX: (viewport.scrollLeft + midX) / Math.max(scale, 0.01),
+                    contentY: (viewport.scrollTop + midY) / Math.max(scale, 0.01),
+                    midX, midY
+                };
+            }, {passive:true});
+            viewport.addEventListener('touchmove', function(e) {
+                if (!mobileQuery.matches || e.touches.length !== 2 || !pinchStart) return;
+                e.preventDefault();
+                const nextDistance = touchDistance(e.touches[0], e.touches[1]);
+                const nextScale = Math.max(minScale, Math.min(3, pinchStart.scale * nextDistance / Math.max(1, pinchStart.distance)));
+                const rect = viewport.getBoundingClientRect();
+                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+                scale = nextScale;
+                wrapper.style.zoom = String(scale);
+                viewport.scrollLeft = Math.max(0, pinchStart.contentX * scale - midX);
+                viewport.scrollTop = Math.max(0, pinchStart.contentY * scale - midY);
+            }, {passive:false});
+            viewport.addEventListener('touchend', function(e) {
+                if (e.touches.length < 2) pinchStart = null;
+            }, {passive:true});
+
+            if (mobileQuery.addEventListener) mobileQuery.addEventListener('change', scheduleFit);
+            else if (mobileQuery.addListener) mobileQuery.addListener(scheduleFit);
+            window.addEventListener('resize', scheduleFit, {passive:true});
+            if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleFit);
+            // مراقبة تغيّر الصفحات فقط، مع دمج عمليات إعادة الرسم في إطار واحد.
+            const observer = new MutationObserver(scheduleFit);
+            observer.observe(wrapper, {childList:true, subtree:false});
+            scheduleFit();
+        })();
+
         // تحرير مباشر بالنقر على نص السؤال؛ يحفظ النص في الحالة الأصلية.
         document.addEventListener('click', function(e){
             // لا تفتح محرر السؤال عند التعامل مع خلية جدول/توصيل أو مقبض الصورة.
@@ -4335,6 +4684,35 @@ OUTPUT ONLY A VALID JSON matching this schema:
             editor.addEventListener('blur',save,{once:true});
             editor.addEventListener('keydown',ev=>{if(ev.key==='Escape'){renderPages();} if(ev.key==='Enter'&&(ev.ctrlKey||ev.metaKey)){editor.blur();}});
         });
+        // حفظ الصدر والعجز مباشرة في كائن السؤال دون إعادة رسم أثناء الكتابة.
+        document.addEventListener('input', function(e) {
+            const cell = e.target.closest('.poem-inline-edit');
+            if (!cell) return;
+            const questionEl = cell.closest('.question-item');
+            if (!questionEl) return;
+            const p = Number(questionEl.dataset.page);
+            const q = Number(questionEl.dataset.question);
+            const verse = Number(cell.dataset.verse);
+            const field = cell.dataset.poemField;
+            const item = state.pages?.[p]?.questions?.[q];
+            if (!item || !Array.isArray(item.verses) || !item.verses[verse] || !['sadr', 'aja'].includes(field)) return;
+            item.verses[verse][field] = cell.innerText.replace(/\\r/g, '');
+            saveLocalState();
+        });
+        // عند مغادرة الشطر، مزامنة نهائية دون المساس بتنسيق بقية الأبيات.
+        document.addEventListener('focusout', function(e) {
+            const cell = e.target.closest('.poem-inline-edit');
+            if (!cell) return;
+            const questionEl = cell.closest('.question-item');
+            if (!questionEl) return;
+            const item = state.pages?.[Number(questionEl.dataset.page)]?.questions?.[Number(questionEl.dataset.question)];
+            const verse = item?.verses?.[Number(cell.dataset.verse)];
+            if (verse && ['sadr', 'aja'].includes(cell.dataset.poemField)) {
+                verse[cell.dataset.poemField] = cell.innerText.replace(/\\r/g, '');
+                saveLocalState();
+            }
+        });
+
         // مزامنة خلايا الجداول والتوصيل مع نص السؤال وحفظها فور مغادرة الخلية.
         function syncAdvancedWidget(widget) {
             const item=widget.closest('.question-item');
@@ -4441,5 +4819,6 @@ OUTPUT ONLY A VALID JSON matching this schema:
             saveLocalState();
         }
     </script>
+
 </body>
 </html>

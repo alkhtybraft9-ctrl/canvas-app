@@ -2147,6 +2147,45 @@
             }
         }
 
+        /* Force white-space: normal on question text container whenever it holds an interactive widget,
+           and hide any <br> immediately before or after a widget (screen + print + PDF) */
+        .q-text-editable:has(.edu-widget),
+        .q-text-editable:has([data-ws-kind]),
+        .q-text-editable:has([data-adv-kind]),
+        .q-text-editable.has-block-widget {
+            white-space: normal !important;
+        }
+        .q-text-editable br:has(+ .edu-widget),
+        .q-text-editable br:has(+ [data-ws-kind]),
+        .q-text-editable br:has(+ [data-adv-kind]),
+        .edu-widget + br,
+        [data-ws-kind] + br,
+        [data-adv-kind] + br {
+            display: none !important;
+        }
+        .q-prompt-segment {
+            display: block;
+            margin: 0 0 2px 0;
+            padding: 0;
+            white-space: pre-wrap;
+        }
+        @media print {
+            .q-text-editable:has(.edu-widget),
+            .q-text-editable:has([data-ws-kind]),
+            .q-text-editable:has([data-adv-kind]),
+            .q-text-editable.has-block-widget {
+                white-space: normal !important;
+            }
+            .q-text-editable br:has(+ .edu-widget),
+            .q-text-editable br:has(+ [data-ws-kind]),
+            .q-text-editable br:has(+ [data-adv-kind]),
+            .edu-widget + br,
+            [data-ws-kind] + br,
+            [data-adv-kind] + br {
+                display: none !important;
+            }
+        }
+
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen flex flex-col font-cairo text-slate-800 select-none sm:select-auto">
@@ -4260,7 +4299,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swCode = `
-                    const CACHE_NAME = 'marmara-exam-v12';
+                    const CACHE_NAME = 'marmara-exam-v13';
                     self.addEventListener('install', (e) => { e.waitUntil(self.skipWaiting()); });
                     self.addEventListener('activate', (e) => {
                         e.waitUntil(
@@ -6847,12 +6886,14 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 const mode = document.querySelector('input[name="edu-insert-mode"]:checked')?.value || 'new_q';
 
                 if (mode === 'into_q') {
-                    // If Question Edit Modal is open, append directly to #modal-qtext
+                    // If Question Edit Modal is open, append directly to #modal-qtext without extra newlines
                     const editModal = document.getElementById('edit-modal');
                     if (editModal && !editModal.classList.contains('hidden')) {
                         const ta = document.getElementById('modal-qtext');
+                        const linesInp = document.getElementById('modal-qlines');
                         if (ta) {
-                            ta.value = (ta.value.trimEnd() ? ta.value.trimEnd() + '\n' : '') + token;
+                            ta.value = (ta.value || '').replace(/[\r\n]+$/g, '') + token;
+                            if (linesInp) linesInp.value = 0;
                             closeEduToolsModal();
                             showToast('تم إدراج الوسيلة التعليمية في السؤال (اضغط حفظ التغييرات)');
                             return;
@@ -6862,7 +6903,8 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     const qIdx = eduToolsTarget ? eduToolsTarget.qIdx : (state.pages[pIdx].questions.length - 1);
                     const q = state.pages?.[pIdx]?.questions?.[qIdx];
                     if (q) {
-                        q.text = (q.text.trimEnd() ? q.text.trimEnd() + '\n' : '') + token;
+                        q.text = String(q.text || '').replace(/[\r\n]+$/g, '') + token;
+                        q.answerLines = 0;
                         renderPages();
                         closeEduToolsModal();
                         showToast('تم إدراج الوسيلة التعليمية داخل السؤال بنجاح');
@@ -6870,12 +6912,12 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     }
                 }
 
-                // Default: Add as a new question on the current/last page
+                // Default: Add as a new question on the current/last page (no blank lines, answerLines = 0)
                 const pIdx = eduToolsTarget ? eduToolsTarget.pIdx : (state.pages.length - 1);
                 state.pages[pIdx].questions.push({
                     id: Date.now() + Math.random(),
                     type: 'written',
-                    text: `${defaultPromptText}\n${token}`,
+                    text: `${String(defaultPromptText || '').trim()}${token}`,
                     marks: 10,
                     answerLines: 0,
                     color: '#0f172a'
@@ -7616,11 +7658,19 @@ OUTPUT ONLY A VALID JSON matching this schema:
             // 5. Render inline text, formatting tags, and KaTeX math outside blocks
             let html = renderInlineRichText(working);
 
-            // 6. Restore rendered block widgets
-            // Remove ALL literal newlines, <br>, and empty <p>/<div> tags directly before/after block widgets
-            html = html.replace(/(?:[\r\n]+|<br\s*\/?>|<p>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/p>|<div>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/div>)+\s*(?=@@BLOCK_TOKEN_\d+@@)/gi, '');
-            html = html.replace(/(@@BLOCK_TOKEN_\d+@@)\s*(?:[\r\n]+|<br\s*\/?>|<p>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/p>|<div>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/div>)+/gi, '$1');
-            html = html.replace(/@@BLOCK_TOKEN_(\d+)@@/g, (m, idx) => blockTokens[Number(idx)] || '');
+            // 6. Restore rendered block widgets cleanly separated from prompt text
+            if (blockTokens.length > 0) {
+                // Split by block tokens so each text segment is trimmed of leading/trailing newlines & <br>
+                const parts = html.split(/(@@BLOCK_TOKEN_\d+@@)/g);
+                html = parts.map(part => {
+                    const m = part.match(/^@@BLOCK_TOKEN_(\d+)@@$/);
+                    if (m) return blockTokens[Number(m[1])] || '';
+                    const cleaned = part
+                        .replace(/^(?:\s|[\r\n]|<br\s*\/?>|<p>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/p>|<div>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/div>)+/gi, '')
+                        .replace(/(?:\s|[\r\n]|<br\s*\/?>|<p>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/p>|<div>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/div>)+$/gi, '');
+                    return cleaned ? `<span class="q-prompt-segment">${cleaned}</span>` : '';
+                }).join('');
+            }
             return html;
         }
 
@@ -7955,7 +8005,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                                         <span class="text-turquoise-800 cursor-pointer hover:underline" onclick="openQuestionModal(${pIdx}, ${qIdx})">${label}</span>
                                         ${marksText}
                                     </span>
-                                    <div contenteditable="true" spellcheck="false" class="whitespace-pre-wrap question-inline-edit q-text-editable" data-page="${pIdx}" data-question="${qIdx}" title="انقر للتعديل المباشر أو ظلل سطراً لتكبير/تصغير خطه">${parseQuestionContent(q.text)}</div>
+                                    <div contenteditable="true" spellcheck="false" class="${/\[(edu_widget|ws_badges:|table:|match:)/.test(q.text || '') ? 'has-block-widget' : 'whitespace-pre-wrap'} question-inline-edit q-text-editable" data-page="${pIdx}" data-question="${qIdx}" title="انقر للتعديل المباشر أو ظلل سطراً لتكبير/تصغير خطه">${parseQuestionContent(q.text)}</div>
                                     ${typeSpecificHtml}
                                 </div>
 

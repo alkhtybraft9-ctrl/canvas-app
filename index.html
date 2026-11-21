@@ -1926,6 +1926,98 @@
             }
         }
 
+        /* =========================================================
+           Compact Spacing for Educational Widgets (A4 Space Saving)
+           & Visual Thumbnail Previews inside #edu-tools-modal
+           ========================================================= */
+        .edu-widget {
+            margin: 4px 0 6px 0 !important;
+            padding: 4px 6px !important;
+        }
+        .edu-widget-bar {
+            margin-bottom: 0 !important;
+        }
+        .edu-widget:hover .edu-widget-bar,
+        .edu-widget:focus-within .edu-widget-bar,
+        .edu-widget.edu-selected .edu-widget-bar {
+            padding: 3px 6px !important;
+            margin-bottom: 4px !important;
+        }
+        @media (hover: none), (max-width: 850px) {
+            .edu-widget .edu-widget-bar {
+                padding: 3px 6px !important;
+                margin-bottom: 4px !important;
+            }
+        }
+        .edu-count-grid { gap: 6px !important; }
+        .edu-count-card { padding: 5px 5px !important; gap: 5px !important; }
+        .edu-visual-slot { min-height: 44px !important; padding: 3px 4px !important; }
+        .edu-seq-track,
+        .edu-word-boxes,
+        .edu-img-match-grid,
+        .edu-anasynt-list {
+            margin: 2px 0 !important;
+            gap: 6px !important;
+        }
+        .edu-img-match-slot { min-height: 54px !important; padding: 4px !important; }
+        .edu-numline-wrap { padding: 6px 6px 2px !important; }
+        .edu-sort-bank { margin-bottom: 6px !important; padding: 5px 8px !important; }
+        .ws-hex-row, .ws-domino-grid, .ws-scroll-row, .ws-star-row,
+        .ws-floral-row, .ws-circle-grid, .ws-beige-row, .ws-placeval-row,
+        .ws-branch-grid, .ws-eng-match-grid, .ws-count-grid {
+            margin: 4px 0 !important;
+        }
+        .question-item {
+            margin-bottom: 8px !important;
+        }
+        @media print {
+            .edu-widget {
+                margin: 3px 0 4px 0 !important;
+                padding: 0 !important;
+            }
+            .question-item {
+                margin-bottom: 6px !important;
+            }
+        }
+
+        /* Live Thumbnail Preview Box in Educational Aids Library Modal */
+        .edu-thumb-box {
+            width: 100%;
+            height: 68px;
+            background: linear-gradient(180deg, #f8fafc 0%, #f0fdfa 100%);
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 8px;
+            overflow: hidden;
+            user-select: none;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+        .edu-thumb-mini-card {
+            border: 1.5px solid #0d9488;
+            background: #fff;
+            border-radius: 6px;
+            padding: 3px 6px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        .edu-thumb-ans {
+            width: 22px;
+            height: 12px;
+            border: 1.5px solid #0f172a;
+            border-radius: 3px;
+            background: #f0fdfa;
+            font-size: 9px;
+            line-height: 10px;
+            text-align: center;
+            font-weight: 800;
+        }
+
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen flex flex-col font-cairo text-slate-800 select-none sm:select-auto">
@@ -3322,6 +3414,11 @@
                                 <h4 class="font-extrabold text-sm text-navy-900">بطاقات العدّ بالرسومات</h4>
                                 <span class="text-[10px] bg-turquoise-50 text-turquoise-800 px-2 py-0.5 rounded-full font-bold">مربع عدد أسفل كل بطاقة</span>
                             </div>
+                            <div class="edu-thumb-box"><div style="display:flex;gap:8px;align-items:center;">
+        <div class="edu-thumb-mini-card"><div style="font-size:15px;letter-spacing:1px;">🍎🍎🍎</div><div class="edu-thumb-ans">٣</div></div>
+        <div class="edu-thumb-mini-card"><div style="font-size:15px;letter-spacing:1px;">🍒🍒</div><div class="edu-thumb-ans"></div></div>
+        <div class="edu-thumb-mini-card"><div style="font-size:15px;letter-spacing:1px;">⭐⭐⭐⭐</div><div class="edu-thumb-ans"></div></div>
+    </div></div>
                             <p class="text-[11px] text-slate-600">بطاقات تحتوي على أيقونات تعليمية مكررة (تفاح، كرز، دببة، نجوم، حزم عشرات...) وتحت كل بطاقة مربع فارغ لكتابة العدد. انقر على أي رسمة لاحقاً لتغيير الأيقونة أو العدد أو رفع صورة من جهازك.</p>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
@@ -3363,6 +3460,16 @@
                                 <h4 class="font-extrabold text-sm text-navy-900">بطاقات المقارنة (الأكبر بواحد / ✓)</h4>
                                 <span class="text-[10px] bg-amber-50 text-amber-800 px-2 py-0.5 rounded-full font-bold">بطاقة ثنائية للمقارنة</span>
                             </div>
+                            <div class="edu-thumb-box"><div style="display:flex;gap:8px;align-items:center;">
+        <div class="edu-thumb-mini-card" style="border-color:#f59e0b;">
+            <div style="display:flex;gap:6px;font-size:13px;"><span>🧸🧸</span><span style="border-right:1px dashed #cbd5e1;padding-right:5px;">🧸🧸🧸</span></div>
+            <div style="display:flex;gap:6px;"><div class="edu-thumb-ans"></div><div class="edu-thumb-ans" style="border-color:#dc2626;color:#dc2626;">✓</div></div>
+        </div>
+        <div class="edu-thumb-mini-card" style="border-color:#f59e0b;">
+            <div style="display:flex;gap:6px;font-size:13px;"><span>🍒🍒</span><span style="border-right:1px dashed #cbd5e1;padding-right:5px;">🍒</span></div>
+            <div style="display:flex;gap:6px;"><div class="edu-thumb-ans" style="border-color:#dc2626;color:#dc2626;">✓</div><div class="edu-thumb-ans"></div></div>
+        </div>
+    </div></div>
                             <p class="text-[11px] text-slate-600">كل بطاقة مقسمة إلى جهتين (مثل سؤال الدببة والكرزات والمعداد)، وتحتها مربعان لكتابة العدد ووضع إشارة (✓) أسفل الأكبر. قابلة لتغيير الرسومات والأعداد بالنقر المباشر.</p>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
@@ -3394,6 +3501,17 @@
                 <div id="edu-panel-seq" class="edu-panel hidden space-y-4">
                     <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-sm">
                         <h4 class="font-extrabold text-sm text-navy-900">إدراج شريط متتالية عددية (خانات متصلة بخطوط)</h4>
+                            <div class="edu-thumb-box"><div style="display:flex;align-items:center;direction:rtl;">
+        <span style="width:28px;height:24px;background:#fef3c7;border:1.5px solid #0d9488;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;">١</span>
+        <span style="width:12px;height:2px;background:#0d9488;"></span>
+        <span style="width:28px;height:24px;background:#fef3c7;border:1.5px solid #0d9488;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;">٢</span>
+        <span style="width:12px;height:2px;background:#0d9488;"></span>
+        <span style="width:28px;height:24px;background:#ffffff;border:1.5px dashed #0d9488;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;"></span>
+        <span style="width:12px;height:2px;background:#0d9488;"></span>
+        <span style="width:28px;height:24px;background:#fef3c7;border:1.5px solid #0d9488;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;">٤</span>
+        <span style="width:12px;height:2px;background:#0d9488;"></span>
+        <span style="width:28px;height:24px;background:#ffffff;border:1.5px dashed #0d9488;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;"></span>
+    </div></div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">شكل الخانات:</label>
@@ -3433,6 +3551,11 @@
                             </h4>
                             <span class="text-[10px] bg-lime-50 text-lime-800 px-2 py-0.5 rounded-full font-bold border border-lime-200">قابل لتغيير أي صورة من جهازك</span>
                         </div>
+                            <div class="edu-thumb-box"><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:85%;align-items:center;text-align:center;">
+        <div style="border:1.5px solid #84cc16;border-radius:5px;background:#fff;padding:2px;font-size:14px;">🌿</div>
+        <div style="border:1.5px solid #84cc16;border-radius:5px;background:#fff;padding:2px 6px;font-size:10px;font-weight:800;">ورقة</div>
+        <div style="border:1.5px solid #84cc16;border-radius:5px;background:#fff;padding:2px;font-size:14px;">🌸</div>
+    </div></div>
                         <p class="text-[11px] text-slate-600">نفس تصميم سؤال «صل كل صورة بما يناسبها»: عمود صور يمين، عمود كلمات في الوسط، وعمود صور يسار. انقر على أي صورة لتبديلها برسمة أو صورة من هاتفك، وأضف أو احذف الصفوف بضغطة زر.</p>
                         <div class="flex flex-wrap items-center gap-2">
                             <label class="font-bold text-slate-700">عدد الصفوف:</label>
@@ -3454,24 +3577,45 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="bg-white p-4 rounded-xl border border-slate-200 hover:border-turquoise-500 transition space-y-2 shadow-sm">
                             <h4 class="font-extrabold text-sm text-navy-900">جدول العدد السابق والتالي</h4>
+                            <div class="edu-thumb-box"><table style="width:88%;border-collapse:collapse;font-size:9.5px;text-align:center;background:#fff;">
+        <tr style="background:#0f172a;color:#fff;"><th style="border:1px solid #0f172a;padding:1px 3px;">السابق</th><th style="border:1px solid #0f172a;padding:1px 3px;">العدد</th><th style="border:1px solid #0f172a;padding:1px 3px;">التالي</th></tr>
+        <tr><td style="border:1px solid #94a3b8;padding:1px;"></td><td style="border:1px solid #94a3b8;padding:1px;font-weight:800;">١٥</td><td style="border:1px solid #94a3b8;padding:1px;"></td></tr>
+    </table></div>
                             <p class="text-[11px] text-slate-600">جدول منسّق بثلاثة أعمدة (العدد السابق | العدد | العدد التالي) مع أزرار لإضافة وحذف الصفوف وتعديل الأرقام بحرية.</p>
                             <button type="button" onclick="EduTools.insertQuickTableWidget('prev_next')" class="w-full py-2 bg-turquoise-600 hover:bg-turquoise-700 text-white rounded-lg font-bold">إدراج جدول السابق والتالي</button>
                         </div>
 
                         <div class="bg-white p-4 rounded-xl border border-slate-200 hover:border-turquoise-500 transition space-y-2 shadow-sm">
                             <h4 class="font-extrabold text-sm text-navy-900">بطاقات الدومينو للعدد التالي</h4>
+                            <div class="edu-thumb-box"><div style="display:flex;gap:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;width:54px;border:1.5px solid #f59e0b;border-radius:4px;background:#fff;font-size:11px;font-weight:900;text-align:center;">
+            <span style="border-left:1.5px solid #f59e0b;padding:3px 0;">٧</span><span style="padding:3px 0;background:#fffbeb;"></span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;width:54px;border:1.5px solid #f59e0b;border-radius:4px;background:#fff;font-size:11px;font-weight:900;text-align:center;">
+            <span style="border-left:1.5px solid #f59e0b;padding:3px 0;">٤</span><span style="padding:3px 0;background:#fffbeb;"></span>
+        </div>
+    </div></div>
                             <p class="text-[11px] text-slate-600">بطاقات مزدوجة أنيقة (رقم ومربع فارغ بجانبه) مناسبة للعدد التالي أو السابق أو الجمع السريع، قابلة للزيادة والحذف.</p>
                             <button type="button" onclick="EduTools.insertQuickTableWidget('domino')" class="w-full py-2 bg-amber-500 hover:bg-amber-600 text-navy-950 rounded-lg font-extrabold">إدراج بطاقات العدد التالي</button>
                         </div>
 
                         <div class="bg-white p-4 rounded-xl border border-slate-200 hover:border-turquoise-500 transition space-y-2 shadow-sm">
                             <h4 class="font-extrabold text-sm text-navy-900">جدول التوصيل بين عمودين (أ) و (ب)</h4>
+                            <div class="edu-thumb-box"><table style="width:85%;border-collapse:collapse;font-size:9.5px;text-align:center;background:#fff;">
+        <tr style="background:#0f172a;color:#fff;"><th style="border:1px solid #0f172a;padding:1px 4px;">العمود (أ)</th><th style="border:1px solid #0f172a;padding:1px 4px;">العمود (ب)</th></tr>
+        <tr><td style="border:1px solid #94a3b8;padding:1px;">٢ + ٣</td><td style="border:1px solid #94a3b8;padding:1px;">٥</td></tr>
+    </table></div>
                             <p class="text-[11px] text-slate-600">قالب توصيل أنيق لربط الأعداد أو الكلمات أو المفاهيم بين العمود (أ) والعمود (ب) مع أزرار (+ صف / − صف / حذف).</p>
                             <button type="button" onclick="EduTools.insertQuickTableWidget('match_cols')" class="w-full py-2 bg-navy-900 hover:bg-navy-800 text-white rounded-lg font-bold">إدراج جدول التوصيل</button>
                         </div>
 
                         <div class="bg-white p-4 rounded-xl border border-slate-200 hover:border-turquoise-500 transition space-y-2 shadow-sm">
                             <h4 class="font-extrabold text-sm text-navy-900">قالب القيمة المنزلية بالأسهم</h4>
+                            <div class="edu-thumb-box"><div style="display:flex;gap:14px;align-items:center;">
+        <div style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-weight:900;font-size:11px;">٣٥</span><span style="font-size:10px;color:#0d9488;">↓</span><div class="edu-thumb-ans"></div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-weight:900;font-size:11px;">٤٢</span><span style="font-size:10px;color:#0d9488;">↓</span><div class="edu-thumb-ans"></div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-weight:900;font-size:11px;">٧٨</span><span style="font-size:10px;color:#0d9488;">↓</span><div class="edu-thumb-ans"></div></div>
+    </div></div>
                             <p class="text-[11px] text-slate-600">أرقام وتحت كل رقم سهم ومربع فارغ لكتابة القيمة المنزلية أو الآحاد والعشرات، مع إمكانية الزيادة والحذف.</p>
                             <button type="button" onclick="EduTools.insertQuickTableWidget('place_value')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold">إدراج قالب القيمة المنزلية</button>
                         </div>
@@ -3483,6 +3627,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div class="bg-white p-4 rounded-xl border-2 border-turquoise-200 hover:border-turquoise-500 transition space-y-3 shadow-sm">
                             <h4 class="font-extrabold text-sm text-navy-900">صناديق الكلمات والحروف (للقراءة والتحويط)</h4>
+                            <div class="edu-thumb-box"><div style="display:flex;gap:6px;align-items:center;">
+        <span style="border:1.5px solid #0d9488;background:#fff;border-radius:5px;padding:3px 8px;font-size:11px;font-weight:800;">قلم</span>
+        <span style="border:1.5px solid #d97706;background:#fffbeb;border-radius:99px;padding:3px 8px;font-size:11px;font-weight:800;">كتاب</span>
+        <span style="border:2px solid #b91c1c;background:#fff;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">باب</span>
+    </div></div>
                             <p class="text-[11px] text-slate-600">بطاقات كلمات متجاورة لتمارين القراءة أو وضع دائرة حول الحرف أو استخراج حرف المد، قابلة للزيادة والحذف وتغيير الشكل.</p>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
@@ -3506,6 +3655,13 @@
 
                         <div class="bg-white p-4 rounded-xl border-2 border-amber-200 hover:border-amber-500 transition space-y-3 shadow-sm">
                             <h4 class="font-extrabold text-sm text-navy-900">قوالب تركيب المقاطع الصوتية بالأسهم</h4>
+                            <div class="edu-thumb-box"><div style="display:flex;align-items:center;gap:8px;font-size:10px;font-weight:800;">
+        <span style="width:26px;height:26px;border-radius:50%;background:#0f172a;color:#fff;display:inline-flex;align-items:center;justify-content:center;">ها</span>
+        <div style="display:flex;flex-direction:column;gap:2px;line-height:1.2;">
+            <span>← ني ← _____</span>
+            <span>← رب ← _____</span>
+        </div>
+    </div></div>
                             <p class="text-[11px] text-slate-600">قالب دمج مقطع رئيسي مع عدة مقاطع فرعية بأسهم لتكوين كلمات مع فراغ للكتابة (مثل: ها ← ني / رب / شم).</p>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
@@ -3535,6 +3691,13 @@
                                 <h4 class="font-extrabold text-sm text-navy-900">1. سؤال التحليل إلى مقاطع وحروف</h4>
                                 <span class="text-[10px] bg-amber-50 text-amber-800 px-2 py-0.5 rounded-full font-bold">كلمة = [ ] [ ] [ ]</span>
                             </div>
+                            <div class="edu-thumb-box"><div style="display:flex;align-items:center;gap:4px;font-size:10px;font-weight:900;">
+        <span style="border:1.5px solid #0f172a;background:#fff;border-radius:5px;padding:3px 10px;">مَدْرَسَة</span>
+        <span style="color:#b45309;font-size:13px;">=</span>
+        <span style="width:22px;height:22px;border:1.5px solid #d97706;background:#fff;border-radius:5px;"></span>
+        <span style="width:22px;height:22px;border:1.5px solid #0f172a;background:#fff;border-radius:5px;"></span>
+        <span style="width:22px;height:22px;border:1.5px solid #dc2626;background:#fff;border-radius:5px;"></span>
+    </div></div>
                             <p class="text-[11px] text-slate-600">مربع عريض للكلمة الكاملة على اليمين، تليه إشارة (=) ثم مربعات ملونة (برتقالي، كحلي، أحمر) فارغة ومنقطة ليحلّل الطالب الكلمة بداخلها.</p>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
@@ -3565,6 +3728,13 @@
                                 <h4 class="font-extrabold text-sm text-navy-900">2. سؤال التركيب من مقاطع وحروف</h4>
                                 <span class="text-[10px] bg-turquoise-50 text-turquoise-800 px-2 py-0.5 rounded-full font-bold">[ ] [ ] [ ] = كلمة</span>
                             </div>
+                            <div class="edu-thumb-box"><div style="display:flex;align-items:center;gap:4px;font-size:10px;font-weight:900;">
+        <span style="border:1.5px solid #d97706;background:#fff;border-radius:5px;padding:2px 6px;">كِـ</span>
+        <span style="border:1.5px solid #0f172a;background:#fff;border-radius:5px;padding:2px 6px;">تا</span>
+        <span style="border:1.5px solid #dc2626;background:#fff;border-radius:5px;padding:2px 6px;">بٌ</span>
+        <span style="color:#b45309;font-size:13px;">=</span>
+        <span style="border:1.5px solid #0f172a;background:#fff;border-radius:5px;padding:2px 14px;color:#94a3b8;">.....</span>
+    </div></div>
                             <p class="text-[11px] text-slate-600">مربعات ملونة (برتقالي، كحلي، أحمر) تحتوي المقاطع الصوتية على اليمين، تليها إشارة (=) ثم مربع عريض فارغ ومنقط ليكتب الطالب الكلمة المركّبة.</p>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
@@ -3601,6 +3771,16 @@
                                 <h4 class="font-extrabold text-sm text-navy-900 flex items-center gap-1.5"><i class="fa-solid fa-ruler-horizontal text-turquoise-600"></i> خط الأعداد التفاعلي</h4>
                                 <span class="text-[10px] bg-turquoise-50 text-turquoise-800 px-2 py-0.5 rounded-full font-bold">حتى 16 نقطة</span>
                             </div>
+                            <div class="edu-thumb-box"><div style="width:88%;direction:ltr;">
+        <div style="height:2.5px;background:#0f172a;position:relative;margin-bottom:4px;"></div>
+        <div style="display:flex;justify-content:space-between;font-size:9.5px;font-weight:800;">
+            <span style="border:1px solid #0d9488;background:#fff;border-radius:3px;padding:0 4px;">0</span>
+            <span style="border:1px solid #0d9488;background:#fff;border-radius:3px;padding:0 4px;">1</span>
+            <span style="border:1px dashed #0d9488;background:#fff;border-radius:3px;padding:0 5px;">&nbsp;</span>
+            <span style="border:1px solid #0d9488;background:#fff;border-radius:3px;padding:0 4px;">3</span>
+            <span style="border:1px solid #0d9488;background:#fff;border-radius:3px;padding:0 4px;">4</span>
+        </div>
+    </div></div>
                             <p class="text-[11px] text-slate-600">خط أعداد بسهمين وتدريجات قابلة للزيادة والنقصان (`＋ نقطة` / `− نقطة`) والكتابة المباشرة أو ترك فراغات للطالب.</p>
                             <div class="flex items-center gap-2">
                                 <label class="font-bold text-slate-700">عدد النقاط:</label>
@@ -3615,6 +3795,15 @@
                                 <h4 class="font-extrabold text-sm text-navy-900 flex items-center gap-1.5"><i class="fa-regular fa-clock text-amber-600"></i> بطاقات الساعات التفاعلية</h4>
                                 <span class="text-[10px] bg-amber-50 text-amber-800 px-2 py-0.5 rounded-full font-bold">قراءة أو رسم العقارب</span>
                             </div>
+                            <div class="edu-thumb-box"><div style="display:flex;align-items:center;gap:10px;">
+        <svg width="42" height="42" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r="19" fill="#fff" stroke="#0d9488" stroke-width="2.5"/>
+            <line x1="21" y1="21" x2="21" y2="9" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
+            <line x1="21" y1="21" x2="31" y2="21" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="21" cy="21" r="2" fill="#0f172a"/>
+        </svg>
+        <div style="border:1.5px solid #0f172a;background:#fff;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:800;direction:ltr;">03 : 00</div>
+    </div></div>
                             <p class="text-[11px] text-slate-600">ساعات أنيقة قابلة للزيادة والنقصان. انقر على أي ساعة لتحديد الساعة والدقائق بدقة، أو إخفاء العقارب ليرسمها الطالب.</p>
                             <div class="flex items-center gap-2">
                                 <label class="font-bold text-slate-700">عدد الساعات:</label>
@@ -3629,6 +3818,17 @@
                                 <h4 class="font-extrabold text-sm text-navy-900 flex items-center gap-1.5"><i class="fa-solid fa-chart-pie text-teal-600"></i> نماذج الكسور المظلّلة</h4>
                                 <span class="text-[10px] bg-teal-50 text-teal-800 px-2 py-0.5 rounded-full font-bold">دوائر أو مستطيلات</span>
                             </div>
+                            <div class="edu-thumb-box"><div style="display:flex;align-items:center;gap:12px;">
+        <svg width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="18" fill="#fff" stroke="#0f172a" stroke-width="1.8"/>
+            <path d="M20,20 L20,2 A18,18 0 1,1 2,20 Z" fill="#14b8a6" stroke="#0f172a" stroke-width="1.2"/>
+            <line x1="20" y1="2" x2="20" y2="38" stroke="#0f172a" stroke-width="1.2"/>
+            <line x1="2" y1="20" x2="38" y2="20" stroke="#0f172a" stroke-width="1.2"/>
+        </svg>
+        <div style="display:flex;flex-direction:column;align-items:center;font-size:10px;font-weight:900;line-height:1.1;">
+            <span>3</span><span style="width:16px;height:1.5px;background:#0f172a;margin:1px 0;"></span><span>4</span>
+        </div>
+    </div></div>
                             <p class="text-[11px] text-slate-600">أشكال كسور مقسمة مع تظليل تفاعلي (تحكم فوري بالبسط والمقام من 2 إلى 12) ومربعات فارغة أسفلها لكتابة الكسر.</p>
                             <div class="flex items-center gap-2">
                                 <select id="edu-frac-shape" class="p-1.5 border border-slate-300 rounded-lg font-bold text-xs">
@@ -3645,6 +3845,16 @@
                                 <h4 class="font-extrabold text-sm text-navy-900 flex items-center gap-1.5"><i class="fa-solid fa-sitemap text-navy-900"></i> خريطة المفاهيم (مخطط شجري)</h4>
                                 <span class="text-[10px] bg-slate-100 text-slate-800 px-2 py-0.5 rounded-full font-bold">لكافة المواد</span>
                             </div>
+                            <div class="edu-thumb-box"><div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:85%;">
+        <div style="background:#0f172a;color:#fff;border-radius:5px;padding:1px 10px;font-size:9px;font-weight:800;">العنوان الرئيسي</div>
+        <div style="width:2px;height:6px;background:#0d9488;"></div>
+        <div style="width:72%;height:2px;background:#0d9488;"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;text-align:center;font-size:8.5px;font-weight:800;">
+            <div style="border:1px solid #0d9488;background:#fff;border-radius:4px;padding:2px;">فرع ١</div>
+            <div style="border:1px solid #0d9488;background:#fff;border-radius:4px;padding:2px;">فرع ٢</div>
+            <div style="border:1px solid #0d9488;background:#fff;border-radius:4px;padding:2px;">فرع ٣</div>
+        </div>
+    </div></div>
                             <p class="text-[11px] text-slate-600">مخطط تنظيمي بعنوان رئيسي يتفرع إلى خانات قابلة للزيادة والنقصان (أقسام الكلام، حالات المادة، أنواع الكائنات...).</p>
                             <div class="flex items-center gap-2">
                                 <label class="font-bold text-slate-700">عدد الفروع:</label>
@@ -3659,6 +3869,13 @@
                                 <h4 class="font-extrabold text-sm text-navy-900 flex items-center gap-1.5"><i class="fa-solid fa-boxes-stacked text-emerald-600"></i> سلال التصنيف بالكلمات (بنك كلمات + سلال)</h4>
                                 <span class="text-[10px] bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-full font-bold">عربي / علوم / رياضيات</span>
                             </div>
+                            <div class="edu-thumb-box"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:85%;">
+        <div style="border:1px dashed #d97706;background:#fffbeb;border-radius:4px;padding:1px 8px;font-size:8.5px;font-weight:800;">الشمس — القمر — النور</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;font-size:8.5px;text-align:center;">
+            <div style="border:1px solid #0f172a;border-radius:4px;overflow:hidden;background:#fff;"><div style="background:#0d9488;color:#fff;font-weight:800;">لام شمسية</div><div style="height:12px;"></div></div>
+            <div style="border:1px solid #0f172a;border-radius:4px;overflow:hidden;background:#fff;"><div style="background:#0d9488;color:#fff;font-weight:800;">لام قمرية</div><div style="height:12px;"></div></div>
+        </div>
+    </div></div>
                             <p class="text-[11px] text-slate-600">صندوق بنك كلمات في الأعلى وتحته سلال تصنيف قابلة للزيادة والنقصان (مثل: لام شمسية / لام قمرية، أو اسم / فعل / حرف، أو حيوانات أليفة / مفترسة) مع أسطر منقطة داخل كل سلة.</p>
                             <div class="flex flex-wrap items-center gap-2">
                                 <label class="font-bold text-slate-700">عدد السلال:</label>
@@ -3914,7 +4131,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swCode = `
-                    const CACHE_NAME = 'marmara-exam-v10';
+                    const CACHE_NAME = 'marmara-exam-v11';
                     self.addEventListener('install', (e) => { e.waitUntil(self.skipWaiting()); });
                     self.addEventListener('activate', (e) => {
                         e.waitUntil(
@@ -7271,6 +7488,9 @@ OUTPUT ONLY A VALID JSON matching this schema:
             let html = renderInlineRichText(working);
 
             // 6. Restore rendered block widgets
+            // Remove extra <br> tags directly before/after block widgets to eliminate empty gaps
+            html = html.replace(/(?:<br\s*\/?>\s*)+(?=@@BLOCK_TOKEN_\d+@@)/gi, '');
+            html = html.replace(/(@@BLOCK_TOKEN_\d+@@)(?:\s*<br\s*\/?>)+/gi, '$1');
             html = html.replace(/@@BLOCK_TOKEN_(\d+)@@/g, (m, idx) => blockTokens[Number(idx)] || '');
             return html;
         }

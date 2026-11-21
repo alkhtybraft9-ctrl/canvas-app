@@ -1887,7 +1887,7 @@
                   <button type="button" id="btnLoadExamProject" onclick="document.getElementById('importExamInput').click()" style="background-color: #d97706; color: #fff; padding: 6px 14px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 0.75rem;">
                     📂 فتح ملف عمل
                   </button>
-                  <input type="file" id="importExamInput" accept=".json" style="display: none;" onchange="importExamProject(event)">
+                  <input type="file" id="importExamInput" accept=".json,.txt,text/plain,application/json" style="display: none;" onchange="importExamProject(event)">
                 </div>
 
                 <button id="pwa-install-btn" onclick="installPWA()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow border border-emerald-500">
@@ -3663,6 +3663,50 @@
         </div>
     </div>
 
+
+    <!-- MODAL 4: Two-Step Direct WhatsApp / Web Share Modal (Preserves Android User Gesture) -->
+    <div id="share-exam-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-[95] flex items-center justify-center hidden p-3 no-print">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-5 space-y-4 border border-slate-200">
+            <div class="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                <h3 class="font-extrabold text-sm text-navy-900 flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-emerald-600 text-lg"></i>
+                    مشاركة ملف الامتحان مع الأستاذ
+                </h3>
+                <button type="button" onclick="closeShareExamModal()" class="text-slate-400 hover:text-slate-700">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-1.5 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-slate-600">اسم الملف الجاهز:</span>
+                    <span id="share-modal-filesize" class="text-[11px] font-extrabold text-emerald-800 bg-white px-2 py-0.5 rounded-full border border-emerald-200">0 KB</span>
+                </div>
+                <div id="share-modal-filename" class="font-extrabold text-navy-900 break-all bg-white p-2 rounded-lg border border-emerald-100 text-[11px]" dir="auto"></div>
+                <p class="text-[11px] text-slate-600 leading-relaxed pt-1">
+                    تم تجهيز ملف العمل القابل للتعديل بصيغة <strong class="text-navy-900">.txt</strong> المتوافقة مع واتساب والأندرويد، ويمكن للأستاذ فتحه مباشرة عبر زر <strong>«📂 فتح ملف عمل»</strong>.
+                </p>
+            </div>
+
+            <div id="share-modal-error" class="hidden p-2.5 bg-amber-50 border border-amber-300 rounded-xl text-[11px] font-bold text-amber-900 leading-relaxed"></div>
+
+            <div class="space-y-2">
+                <button type="button" onclick="executePreparedShare()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white rounded-xl text-sm font-extrabold shadow-md transition flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>إرسال الملف الآن عبر واتساب</span>
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="downloadPreparedShareFile(false)" class="py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-download"></i> تنزيل الملف فقط
+                    </button>
+                    <button type="button" onclick="closeShareExamModal()" class="py-2 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-xs font-bold transition">
+                        إغلاق
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-5 right-5 bg-navy-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-bold z-50 transform translate-y-20 opacity-0 flex items-center gap-2 pointer-events-none no-print">
         <i id="toast-icon" class="fa-solid fa-circle-check text-turquoise-400"></i>
@@ -3704,9 +3748,15 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swCode = `
-                    const CACHE_NAME = 'marmara-exam-v3';
+                    const CACHE_NAME = 'marmara-exam-v9';
                     self.addEventListener('install', (e) => { e.waitUntil(self.skipWaiting()); });
-                    self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
+                    self.addEventListener('activate', (e) => {
+                        e.waitUntil(
+                            caches.keys().then((keys) => Promise.all(
+                                keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+                            )).then(() => self.clients.claim())
+                        );
+                    });
                     self.addEventListener('fetch', (e) => {
                         e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
                     });
@@ -7899,7 +7949,9 @@ OUTPUT ONLY A VALID JSON matching this schema:
             setChk('chk-score-box', state.header.showScoreBox);
         }
 
-        async function shareExamLink() {
+        let preparedSharePayload = null;
+
+        function shareExamLink() {
             try {
                 if (!state || !state.pages || state.pages.length === 0) {
                     showToast('لا يوجد محتوى امتحان لمشاركته!', 'warning');
@@ -7908,70 +7960,97 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 const cleanPart = (str) => String(str || '').trim().replace(/[^\u0600-\u06FFa-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
                 const subjPart = cleanPart(state.header.subject);
                 const titlePart = cleanPart(state.header.examTitle) || 'امتحان';
-                const fileName = `${subjPart ? subjPart + '_' : ''}${titlePart}_مرمرة.json`;
+                // Use .txt with text/plain so Android Chrome Web Share API + WhatsApp accept it reliably
+                const fileName = `${subjPart ? subjPart + '_' : ''}${titlePart}_مرمرة.txt`;
 
                 const projectData = { version: "2.1", date: new Date().toISOString(), state: state };
                 const jsonStr = JSON.stringify(projectData, null, 2);
+                const shareFile = new File([jsonStr], fileName, { type: 'text/plain' });
 
                 const shareTitle = `${state.header.examTitle || 'اختبار'} - ${state.header.subject || 'مؤسسة مرمرة التعليمية'}`;
                 const shareText = `السلام عليكم، مرفق ملف الامتحان القابل للتعديل (${state.header.subject || ''} - ${state.header.grade || ''}).\nيمكنكم فتحه وتعديله مباشرة عبر زر «📂 فتح ملف عمل» في محرر الامتحانات الاحترافي.`;
 
-                // Try native Web Share API with attached file (works directly with WhatsApp on mobile)
-                if (typeof navigator !== 'undefined' && navigator.share && typeof File !== 'undefined') {
-                    let shareFile = new File([jsonStr], fileName, { type: 'application/json' });
-                    let canShareFiles = false;
+                preparedSharePayload = { file: shareFile, fileName, jsonStr, shareTitle, shareText };
 
-                    if (navigator.canShare) {
-                        if (navigator.canShare({ files: [shareFile] })) {
-                            canShareFiles = true;
-                        } else {
-                            // Some Android browsers/WhatsApp builds require text/plain MIME for .json attachments
-                            const fallbackMimeFile = new File([jsonStr], fileName, { type: 'text/plain' });
-                            if (navigator.canShare({ files: [fallbackMimeFile] })) {
-                                shareFile = fallbackMimeFile;
-                                canShareFiles = true;
-                            }
-                        }
-                    }
+                const fnEl = document.getElementById('share-modal-filename');
+                const fsEl = document.getElementById('share-modal-filesize');
+                const errEl = document.getElementById('share-modal-error');
+                if (fnEl) fnEl.textContent = fileName;
+                if (fsEl) fsEl.textContent = `${Math.max(1, Math.round(shareFile.size / 1024))} KB`;
+                if (errEl) { errEl.textContent = ''; errEl.classList.add('hidden'); }
 
-                    if (canShareFiles) {
-                        try {
-                            await navigator.share({
-                                title: shareTitle,
-                                text: shareText,
-                                files: [shareFile]
-                            });
-                            showToast('✅ تم إرسال ملف الامتحان عبر قائمة المشاركة!');
-                            return;
-                        } catch (shareErr) {
-                            if (shareErr && shareErr.name === 'AbortError') {
-                                showToast('تم إلغاء المشاركة', 'info');
-                                return;
-                            }
-                            console.warn('Web Share API fallback triggered:', shareErr);
-                        }
-                    }
-                }
-
-                // Fallback (Desktop or older browsers): Download file + offer opening WhatsApp with ready message
-                const blob = new Blob([jsonStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-                showToast('تم تنزيل ملف الامتحان — يمكنك إرفاقه الآن في واتساب للأستاذ');
-                if (confirm('✅ تم تنزيل ملف الامتحان بنجاح على جهازك!\n(متصفحك الحالي لا يدعم إرفاق الملفات مباشرة في قائمة المشاركة)\n\nهل تريد فتح واتساب الآن لإرسال إشعار جاهز للأستاذ وإرفاق الملف؟')) {
-                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-                }
+                document.getElementById('share-exam-modal').classList.remove('hidden');
             } catch (e) {
                 console.error(e);
                 showToast('حدث خطأ أثناء تجهيز ملف المشاركة', 'error');
             }
+        }
+
+        function closeShareExamModal() {
+            document.getElementById('share-exam-modal').classList.add('hidden');
+        }
+
+        function downloadPreparedShareFile(openWhatsAppNotice = false) {
+            if (!preparedSharePayload) return;
+            const { jsonStr, fileName, shareText } = preparedSharePayload;
+            const blob = new Blob([jsonStr], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            showToast('تم تنزيل ملف الامتحان (.txt) على جهازك');
+            if (openWhatsAppNotice) {
+                window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+            }
+        }
+
+        function executePreparedShare() {
+            if (!preparedSharePayload) {
+                showToast('لم يتم تجهيز الملف بعد', 'warning');
+                return;
+            }
+            const { file, shareTitle, shareText } = preparedSharePayload;
+            const errEl = document.getElementById('share-modal-error');
+
+            const showFailAndFallback = (reasonMsg) => {
+                if (errEl) {
+                    errEl.textContent = `⚠️ تعذر فتح قائمة المشاركة: ${reasonMsg}. سيتم تنزيل الملف تلقائياً على جهازك.`;
+                    errEl.classList.remove('hidden');
+                }
+                showToast(`تعذر المشاركة المباشرة (${reasonMsg}) — جاري تنزيل الملف`, 'warning');
+                downloadPreparedShareFile(false);
+            };
+
+            if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') {
+                showFailAndFallback('المتصفح الحالي لا يدعم واجهة المشاركة (Web Share API)');
+                return;
+            }
+            if (typeof navigator.canShare === 'function' && !navigator.canShare({ files: [file] })) {
+                showFailAndFallback('المتصفح لا يدعم إرفاق هذا النوع من الملفات عبر المشاركة المباشرة');
+                return;
+            }
+
+            // Call navigator.share synchronously inside the click handler (zero delay before call)
+            navigator.share({
+                title: shareTitle,
+                text: shareText,
+                files: [file]
+            }).then(() => {
+                closeShareExamModal();
+                showToast('✅ تم إرسال ملف الامتحان بنجاح!');
+            }).catch((shareErr) => {
+                if (shareErr && shareErr.name === 'AbortError') {
+                    showToast('تم إلغاء المشاركة', 'info');
+                    return;
+                }
+                const errDetail = shareErr ? `${shareErr.name || 'خطأ'}${shareErr.message ? ': ' + shareErr.message : ''}` : 'خطأ غير معروف';
+                console.warn('Web Share API failed:', shareErr);
+                showFailAndFallback(errDetail);
+            });
         }
 
         function saveLocalState() {

@@ -2018,6 +2018,135 @@
             font-weight: 800;
         }
 
+        /* =========================================================
+           Root-Cause Fix: Zero Vertical Gaps Between Question Text
+           and Interactive Widgets (Screen + Print + PDF Capture)
+           ========================================================= */
+        .a4-page,
+        .questions-container {
+            display: block !important;
+            justify-content: flex-start !important;
+        }
+        .question-item {
+            min-height: auto !important;
+            height: auto !important;
+            padding-bottom: 0 !important;
+            margin-bottom: 8px !important;
+        }
+        .q-text-editable,
+        .question-inline-edit {
+            min-height: auto !important;
+            height: auto !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 4px !important;
+            line-height: 1.5 !important;
+        }
+        /* CRITICAL: Prevent widgets inside .q-text-editable.whitespace-pre-wrap
+           from inheriting white-space: pre-wrap (which turned HTML newlines into huge blank gaps!) */
+        .edu-widget,
+        .edu-widget *,
+        [data-ws-kind],
+        [data-ws-kind] *,
+        [data-adv-kind],
+        [data-adv-kind] *,
+        .ws-placeval-row,
+        .ws-hex-row,
+        .ws-domino-grid,
+        .ws-scroll-row,
+        .ws-star-row,
+        .ws-floral-row,
+        .ws-circle-grid,
+        .ws-beige-row,
+        .ws-branch-grid,
+        .ws-eng-match-grid,
+        .ws-count-grid {
+            white-space: normal !important;
+        }
+        .edu-widget,
+        [data-ws-kind],
+        [data-adv-kind] {
+            margin: 4px 0 8px 0 !important;
+            padding: 4px !important;
+            min-height: auto !important;
+            height: auto !important;
+        }
+        .edu-widget > :last-child,
+        [data-ws-kind] > :last-child {
+            margin-bottom: 0 !important;
+        }
+        .q-text-editable p:empty,
+        .q-text-editable > div:empty:not([class]),
+        .a4-page p:empty {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+        }
+        /* Hide editing bars during PDF capture identically to @media print */
+        body.pdf-capturing .edu-widget-bar,
+        body.pdf-capturing .edu-card-remove-btn,
+        body.pdf-capturing .edu-frac-mini-ctrls,
+        body.pdf-capturing .q-action-bar,
+        body.pdf-capturing .img-resize-toolbar,
+        body.pdf-capturing .img-resize-handle,
+        body.pdf-capturing .exam-free-object-controls,
+        body.pdf-capturing .resize-handle,
+        body.pdf-capturing .no-print {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        body.pdf-capturing .edu-widget {
+            border-color: transparent !important;
+            background: transparent !important;
+            margin: 4px 0 6px 0 !important;
+            padding: 2px 0 !important;
+        }
+        @media print {
+            .a4-page,
+            .questions-container {
+                display: block !important;
+                justify-content: flex-start !important;
+            }
+            .question-item {
+                min-height: auto !important;
+                height: auto !important;
+                padding-bottom: 0 !important;
+                margin-bottom: 6px !important;
+            }
+            .q-text-editable,
+            .question-inline-edit {
+                min-height: auto !important;
+                height: auto !important;
+                padding-bottom: 0 !important;
+                margin-bottom: 4px !important;
+            }
+            .edu-widget,
+            [data-ws-kind],
+            [data-adv-kind] {
+                margin: 4px 0 6px 0 !important;
+                padding: 2px 0 !important;
+                min-height: auto !important;
+                height: auto !important;
+                border-color: transparent !important;
+                background: transparent !important;
+            }
+            .edu-widget-bar {
+                display: none !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            p:empty,
+            .q-text-editable > div:empty:not([class]),
+            .a4-page > div:empty:not([class]) {
+                display: none !important;
+            }
+        }
+
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen flex flex-col font-cairo text-slate-800 select-none sm:select-auto">
@@ -4131,7 +4260,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swCode = `
-                    const CACHE_NAME = 'marmara-exam-v11';
+                    const CACHE_NAME = 'marmara-exam-v12';
                     self.addEventListener('install', (e) => { e.waitUntil(self.skipWaiting()); });
                     self.addEventListener('activate', (e) => {
                         e.waitUntil(
@@ -6723,7 +6852,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     if (editModal && !editModal.classList.contains('hidden')) {
                         const ta = document.getElementById('modal-qtext');
                         if (ta) {
-                            ta.value = (ta.value ? ta.value + '\n' : '') + token;
+                            ta.value = (ta.value.trimEnd() ? ta.value.trimEnd() + '\n' : '') + token;
                             closeEduToolsModal();
                             showToast('تم إدراج الوسيلة التعليمية في السؤال (اضغط حفظ التغييرات)');
                             return;
@@ -6733,7 +6862,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                     const qIdx = eduToolsTarget ? eduToolsTarget.qIdx : (state.pages[pIdx].questions.length - 1);
                     const q = state.pages?.[pIdx]?.questions?.[qIdx];
                     if (q) {
-                        q.text = (q.text ? q.text + '\n' : '') + token;
+                        q.text = (q.text.trimEnd() ? q.text.trimEnd() + '\n' : '') + token;
                         renderPages();
                         closeEduToolsModal();
                         showToast('تم إدراج الوسيلة التعليمية داخل السؤال بنجاح');
@@ -7411,7 +7540,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 let out = '';
                 try {
                     const parsed = JSON.parse(jsonStr);
-                    out = renderEduWidgetFromData(parsed);
+                    out = renderEduWidgetFromData(parsed).replace(/>\s+</g, '><').trim();
                 } catch (e) { out = ''; }
                 const idx = blockTokens.length;
                 blockTokens.push(out);
@@ -7470,7 +7599,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
 
             // 3.5 Extract & render visual worksheet widgets [ws_badges:kind]...[/ws_badges]
             working = working.replace(/\[ws_badges:([a-zA-Z0-9_]+)\]([\s\S]*?)\[\/ws_badges\]/g, (m, kind, body) => {
-                const out = renderWsBadgesWidget(kind, body);
+                const out = renderWsBadgesWidget(kind, body).replace(/>\s+</g, '><').trim();
                 const idx = blockTokens.length;
                 blockTokens.push(out);
                 return `@@BLOCK_TOKEN_${idx}@@`;
@@ -7488,9 +7617,9 @@ OUTPUT ONLY A VALID JSON matching this schema:
             let html = renderInlineRichText(working);
 
             // 6. Restore rendered block widgets
-            // Remove extra <br> tags directly before/after block widgets to eliminate empty gaps
-            html = html.replace(/(?:<br\s*\/?>\s*)+(?=@@BLOCK_TOKEN_\d+@@)/gi, '');
-            html = html.replace(/(@@BLOCK_TOKEN_\d+@@)(?:\s*<br\s*\/?>)+/gi, '$1');
+            // Remove ALL literal newlines, <br>, and empty <p>/<div> tags directly before/after block widgets
+            html = html.replace(/(?:[\r\n]+|<br\s*\/?>|<p>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/p>|<div>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/div>)+\s*(?=@@BLOCK_TOKEN_\d+@@)/gi, '');
+            html = html.replace(/(@@BLOCK_TOKEN_\d+@@)\s*(?:[\r\n]+|<br\s*\/?>|<p>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/p>|<div>\s*(?:&nbsp;|<br\s*\/?>)*\s*<\/div>)+/gi, '$1');
             html = html.replace(/@@BLOCK_TOKEN_(\d+)@@/g, (m, idx) => blockTokens[Number(idx)] || '');
             return html;
         }
@@ -8378,6 +8507,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
             const wrapper = document.getElementById('pages-wrapper');
             const prevTransform = wrapper ? wrapper.style.transform : '';
             const prevZoom = wrapper ? wrapper.style.zoom : '';
+            document.body.classList.add('pdf-capturing');
             if (wrapper) {
                 wrapper.style.transform = 'none';
                 wrapper.style.zoom = '1';
@@ -8467,6 +8597,7 @@ OUTPUT ONLY A VALID JSON matching this schema:
                 showToast('تعذر إنشاء PDF تلقائياً — جاري فتح طباعة المتصفح', 'warning');
                 setTimeout(() => window.print(), 300);
             } finally {
+                document.body.classList.remove('pdf-capturing');
                 if (wrapper) {
                     wrapper.style.transform = prevTransform;
                     wrapper.style.zoom = prevZoom;
